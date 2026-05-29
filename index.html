@@ -3,518 +3,458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FUT WIN — Pelada Stats</title>
+  <title>FUT WIN</title>
   <meta name="theme-color" content="#00244A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FUT WIN">
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>* { box-sizing: border-box; margin: 0; padding: 0; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Oswald', sans-serif; background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 40%, #EFF6FF 100%); min-height: 100vh; color: #00244A; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #DBEAFE; }
+    ::-webkit-scrollbar-thumb { background: #0057A8; border-radius: 2px; }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type=date]::-webkit-calendar-picker-indicator { filter: invert(20%) sepia(80%) saturate(600%) hue-rotate(195deg); cursor: pointer; }
+
+    .header { background: linear-gradient(135deg, #00244A 0%, #0057A8 100%); box-shadow: 0 4px 24px rgba(0,87,168,0.25); position: sticky; top: 0; z-index: 50; }
+    .header-inner { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 8px; }
+    .logo-box { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .logo-title { font-size: 24px; letter-spacing: 3px; color: #fff; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+    .logo-sub { font-size: 10px; color: rgba(255,255,255,0.55); letter-spacing: 4px; font-weight: 300; }
+    .jg-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 12px; font-size: 12px; color: #fff; }
+    .jg-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; }
+    .nav { display: flex; }
+    .nav-btn { flex: 1; padding: 10px 0; font-size: 14px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; cursor: pointer; background: none; border: none; border-bottom: 3px solid transparent; color: rgba(255,255,255,0.4); transition: all 0.2s; }
+    .nav-btn.active { color: #fff; border-bottom-color: #fff; }
+
+    .content { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .mini-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .mini-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 12px rgba(0,87,168,0.08); }
+    .mini-icon { font-size: 20px; margin-bottom: 4px; }
+    .mini-val { font-size: 30px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+    .mini-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 3px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #B8C8D8; }
+    .empty-icon { font-size: 56px; margin-bottom: 12px; }
+    .empty-title { font-size: 18px; letter-spacing: 2px; color: #7BAFD4; font-family: 'Bebas Neue', sans-serif; }
+    .empty-sub { font-weight: 300; font-size: 13px; margin-top: 6px; color: #B8C8D8; }
+    .btn-nova-empty { margin-top: 20px; background: linear-gradient(135deg, #0057A8, #1A74C8); border: none; border-radius: 10px; color: #fff; padding: 12px 32px; font-size: 15px; letter-spacing: 3px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; box-shadow: 0 4px 16px rgba(0,87,168,0.25); }
+
+    .partidas-list { display: flex; flex-direction: column; gap: 10px; }
+    .partida-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,87,168,0.07); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
+    .partida-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
+    .partida-row { padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+    .date-block { min-width: 52px; text-align: center; background: linear-gradient(135deg, #0057A8, #1A74C8); border-radius: 10px; padding: 8px 4px; }
+    .date-day { font-size: 22px; color: #fff; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+    .date-rest { font-size: 9px; color: rgba(255,255,255,0.7); letter-spacing: 1px; }
+    .partida-info { flex: 1; }
+    .partida-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 1px; font-family: 'Oswald', sans-serif; }
+    .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.35); }
+    .badge-yellow { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.35); }
+    .badge-red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.35); }
+    .badge-blue { background: rgba(0,87,168,0.15); color: #4FA3E8; border: 1px solid rgba(79,163,232,0.35); }
+    .partida-nums { display: flex; gap: 16px; font-weight: 400; font-size: 14px; color: #7BAFD4; }
+    .partida-num-val { color: #0057A8; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+    .partida-num-val.assist { color: #1A74C8; }
+    .partida-actions { display: flex; gap: 8px; align-items: center; }
+    .del-btn { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 6px; color: #ef4444; padding: 3px 8px; font-size: 10px; cursor: pointer; letter-spacing: 1px; font-family: 'Oswald', sans-serif; opacity: 0; transition: opacity 0.2s; }
+    .partida-row:hover .del-btn { opacity: 1; }
+    .expand-arrow { color: #B8C8D8; font-size: 14px; }
+    .partida-expand { border-top: 1.5px solid #DBEAFE; padding: 14px 16px; background: #F5F9FF; display: none; }
+    .partida-expand.open { display: block; }
+    .expand-nota { font-weight: 300; font-size: 13px; color: #1A74C8; margin-bottom: 12px; line-height: 1.6; }
+    .expand-video-label { font-size: 10px; color: #0057A8; letter-spacing: 2px; margin-bottom: 8px; font-weight: 600; }
+    .expand-video { width: 100%; border-radius: 10px; max-height: 240px; background: #000; }
+    .expand-empty { font-weight: 300; color: #B8C8D8; font-size: 13px; }
+
+    .form-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 18px; padding: 24px; box-shadow: 0 4px 24px rgba(0,87,168,0.1); }
+    .form-title { font-size: 22px; letter-spacing: 3px; margin-bottom: 24px; color: #0057A8; font-family: 'Bebas Neue', sans-serif; display: flex; align-items: center; gap: 8px; }
+    .form-body { display: flex; flex-direction: column; gap: 16px; }
+    .form-label { font-size: 10px; letter-spacing: 3px; color: #0057A8; display: block; margin-bottom: 6px; font-weight: 600; }
+    .form-input { background: #F5F9FF; border: 1.5px solid #B8C8D8; border-radius: 8px; color: #00244A; padding: 10px 14px; font-size: 14px; font-family: 'Oswald', sans-serif; width: 100%; outline: none; transition: border-color 0.2s; }
+    .form-input:focus { border-color: #0057A8; background: #EFF6FF; box-shadow: 0 0 0 3px rgba(0,87,168,0.12); }
+    .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-num { font-size: 28px; font-family: 'Bebas Neue', sans-serif; text-align: center; color: #0057A8; }
+    .form-num.assist { color: #1A74C8; }
+    .upload-area { border: 2px dashed #B8C8D8; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #F5F9FF; transition: all 0.2s; }
+    .upload-area:hover, .upload-area.has-video { border-color: #0057A8; background: rgba(0,87,168,0.05); }
+    .upload-icon { font-size: 32px; margin-bottom: 4px; }
+    .upload-text { font-size: 13px; color: #7BAFD4; }
+    .upload-sub { font-weight: 300; font-size: 11px; color: #B8C8D8; margin-top: 2px; }
+    .btn-salvar { margin-top: 8px; background: linear-gradient(135deg, #00244A 0%, #0057A8 60%, #1A74C8 100%); border: none; border-radius: 12px; color: #fff; padding: 15px; font-size: 18px; letter-spacing: 4px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; box-shadow: 0 4px 20px rgba(0,87,168,0.3); width: 100%; transition: all 0.15s; }
+    .btn-salvar:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-salvar:active { transform: scale(0.98); }
+
+    .stats-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-big { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 18px 14px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); }
+    .stat-big-val { font-size: 40px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+    .stat-big-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 6px; font-weight: 600; }
+    .chart-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); margin-bottom: 16px; }
+    .chart-title { font-size: 13px; letter-spacing: 3px; color: #0057A8; margin-bottom: 16px; font-weight: 600; }
+    .aprov-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); }
+    .aprov-grid { display: flex; gap: 10px; margin-bottom: 14px; }
+    .aprov-item { flex: 1; text-align: center; border-radius: 12px; padding: 14px 8px; }
+    .aprov-val { font-size: 36px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
+    .aprov-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 4px; font-weight: 600; }
+    .aprov-bar { height: 6px; border-radius: 4px; overflow: hidden; display: flex; background: #F5F9FF; }
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-    const { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
 
-    const STORAGE_KEY = "pelada_partidas";
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo-box">⚽</div>
+        <div>
+          <div class="logo-title">FUT WIN</div>
+          <div class="logo-sub">PELADA STATS</div>
+        </div>
+      </div>
+      <div class="jg-badge">
+        <span class="jg-num" id="total-jgs">0</span>
+        <span style="margin-left:4px;opacity:0.6;font-size:12px">JGs</span>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="navTo('historico')">HISTÓRICO</button>
+      <button class="nav-btn" onclick="navTo('nova')">+ NOVA</button>
+      <button class="nav-btn" onclick="navTo('stats')">STATS</button>
+    </div>
+  </div>
+</div>
 
-    const defaultForm = {
-      data: new Date().toISOString().split("T")[0],
-      gols: "",
-      assistencias: "",
-      resultado: "",
-      notas: "",
-      video: null,
-      videoName: "",
-    };
+<div class="content">
 
-    function formatDate(dateStr) {
-      const [y, m, d] = dateStr.split("-");
-      return `${d}/${m}/${y}`;
-    }
+  <!-- HISTÓRICO -->
+  <div id="page-historico" class="page active">
+    <div class="mini-stats">
+      <div class="mini-card">
+        <div class="mini-icon">⚽</div>
+        <div class="mini-val" style="color:#0057A8" id="total-gols">0</div>
+        <div class="mini-label">GOLS</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-icon">🅰️</div>
+        <div class="mini-val" style="color:#1A74C8" id="total-assist">0</div>
+        <div class="mini-label">ASSISTS</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-icon">📈</div>
+        <div class="mini-val" style="color:#4FA3E8" id="media-gols">—</div>
+        <div class="mini-label">MÉDIA/JG</div>
+      </div>
+    </div>
+    <div id="lista-partidas"></div>
+  </div>
 
-    function Badge({ children, color }) {
-      const colors = {
-        green: "background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.35)",
-        yellow: "background:rgba(234,179,8,0.15);color:#eab308;border:1px solid rgba(234,179,8,0.35)",
-        red: "background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.35)",
-        blue: "background:rgba(0,87,168,0.15);color:#4FA3E8;border:1px solid rgba(79,163,232,0.35)",
-      };
-      const style = colors[color] || colors.blue;
-      return (
-        <span style={{
-          fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 700,
-          letterSpacing: 1, fontFamily: "Oswald, sans-serif",
-          ...Object.fromEntries(style.split(";").filter(Boolean).map(s => {
-            const [k, v] = s.split(":");
-            const key = k.trim().replace(/-([a-z])/g, (_, l) => l.toUpperCase());
-            return [key, v.trim()];
-          }))
-        }}>
-          {children}
-        </span>
-      );
-    }
-
-    const CustomTooltip = ({ active, payload, label }) => {
-      if (active && payload && payload.length) {
-        return (
-          <div style={{
-            background: "#00244A", border: "1px solid #1A74C8",
-            borderRadius: 10, padding: "10px 16px", fontSize: 13,
-            boxShadow: "0 8px 32px rgba(0,87,168,0.3)", fontFamily: "Oswald, sans-serif"
-          }}>
-            <p style={{ color: "#4FA3E8", fontWeight: 700, marginBottom: 4 }}>{label}</p>
-            {payload.map((p) => (
-              <p key={p.name} style={{ color: p.color, margin: 0 }}>
-                {p.name}: <b>{p.value}</b>
-              </p>
-            ))}
+  <!-- NOVA PARTIDA -->
+  <div id="page-nova" class="page">
+    <div class="form-card">
+      <div class="form-title">⚽ REGISTRAR PARTIDA</div>
+      <div class="form-body">
+        <div>
+          <label class="form-label">DATA</label>
+          <input type="date" id="f-data" class="form-input">
+        </div>
+        <div class="form-grid2">
+          <div>
+            <label class="form-label">GOLS ⚽</label>
+            <input type="number" min="0" id="f-gols" placeholder="0" class="form-input form-num">
           </div>
-        );
-      }
-      return null;
-    };
-
-    function PeladaTracker() {
-      const [partidas, setPartidas] = useState([]);
-      const [form, setForm] = useState(defaultForm);
-      const [view, setView] = useState("historico");
-      const [expandedId, setExpandedId] = useState(null);
-      const [saved, setSaved] = useState(false);
-      const fileRef = useRef();
-
-      useEffect(() => {
-        try {
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) setPartidas(JSON.parse(stored));
-        } catch {}
-      }, []);
-
-      useEffect(() => {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(partidas));
-        } catch {}
-      }, [partidas]);
-
-      const totalGols = partidas.reduce((s, p) => s + Number(p.gols || 0), 0);
-      const totalAssist = partidas.reduce((s, p) => s + Number(p.assistencias || 0), 0);
-      const mediaGols = partidas.length ? (totalGols / partidas.length).toFixed(1) : "—";
-
-      const chartData = [...partidas]
-        .sort((a, b) => a.data.localeCompare(b.data))
-        .map((p) => ({
-          name: formatDate(p.data),
-          Gols: Number(p.gols || 0),
-          Assistências: Number(p.assistencias || 0),
-        }));
-
-      const acumuladoChart = chartData.map((d, i) => ({
-        name: d.name,
-        "Gols acumulados": chartData.slice(0, i + 1).reduce((s, x) => s + x.Gols, 0),
-      }));
-
-      function handleSubmit() {
-        if (!form.data) return;
-        const nova = { ...form, id: Date.now() };
-        setPartidas((prev) => [nova, ...prev]);
-        setForm(defaultForm);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-        setView("historico");
-      }
-
-      function handleDelete(id) {
-        setPartidas((prev) => prev.filter((p) => p.id !== id));
-      }
-
-      function handleFileChange(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          setForm((f) => ({ ...f, video: ev.target.result, videoName: file.name }));
-        };
-        reader.readAsDataURL(file);
-      }
-
-      const resultadoBadge = (r) => {
-        if (!r) return null;
-        if (r === "Vitória") return <Badge color="green">Vitória</Badge>;
-        if (r === "Empate") return <Badge color="yellow">Empate</Badge>;
-        return <Badge color="red">Derrota</Badge>;
-      };
-
-      const fieldStyle = {
-        background: "#F5F9FF", border: "1.5px solid #B8C8D8", borderRadius: 8,
-        color: "#00244A", padding: "10px 14px", fontSize: 14,
-        fontFamily: "Oswald, sans-serif", width: "100%", outline: "none", transition: "border-color 0.2s",
-      };
-
-      const labelStyle = {
-        fontSize: 10, letterSpacing: 3, color: "#0057A8", display: "block",
-        marginBottom: 6, fontFamily: "Oswald, sans-serif", fontWeight: 600,
-      };
-
-      return (
-        <div style={{
-          fontFamily: "'Bebas Neue', 'Oswald', sans-serif",
-          background: "linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 40%, #EFF6FF 100%)",
-          minHeight: "100vh", color: "#00244A",
-        }}>
-          <style>{`
-            @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&display=swap');
-            * { box-sizing: border-box; }
-            ::-webkit-scrollbar { width: 4px; }
-            ::-webkit-scrollbar-track { background: #DBEAFE; }
-            ::-webkit-scrollbar-thumb { background: #0057A8; border-radius: 2px; }
-            input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-            input[type=date]::-webkit-calendar-picker-indicator { filter: invert(20%) sepia(80%) saturate(600%) hue-rotate(195deg); cursor: pointer; }
-            .field-focus:focus { border-color: #0057A8 !important; background: #EFF6FF !important; box-shadow: 0 0 0 3px rgba(0,87,168,0.12) !important; }
-            .nav-btn { transition: all 0.2s; font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; cursor: pointer; background: none; border: none; }
-            .nav-btn.active { color: #fff; border-bottom: 3px solid #fff; }
-            .nav-btn:not(.active) { color: rgba(255,255,255,0.4); border-bottom: 3px solid transparent; }
-            .card { transition: transform 0.18s, box-shadow 0.18s; }
-            .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
-            .delete-btn { opacity: 0; transition: opacity 0.2s; }
-            .partida-row:hover .delete-btn { opacity: 1; }
-            .submit-btn { transition: all 0.15s; }
-            .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-            .submit-btn:active { transform: scale(0.98); }
-            select option { background: #fff; color: #00244A; }
-          `}</style>
-
-          {/* HEADER */}
-          <div style={{
-            background: "linear-gradient(135deg, #00244A 0%, #0057A8 100%)",
-            boxShadow: "0 4px 24px rgba(0,87,168,0.25)",
-            position: "sticky", top: 0, zIndex: 50,
-          }}>
-            <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 16px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 16, paddingBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: 12,
-                    background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)",
-                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-                  }}>⚽</div>
-                  <div>
-                    <div style={{ fontSize: 24, letterSpacing: 3, color: "#fff", lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>
-                      FUT WIN
-                    </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", letterSpacing: 4, fontFamily: "Oswald, sans-serif", fontWeight: 300 }}>
-                      PELADA STATS
-                    </div>
-                  </div>
-                </div>
-                <div style={{
-                  background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: 8, padding: "4px 12px", fontFamily: "Oswald, sans-serif", fontSize: 12, color: "#fff",
-                }}>
-                  <span style={{ fontFamily: "Bebas Neue, sans-serif", fontSize: 20, lineHeight: 1 }}>{partidas.length}</span>
-                  <span style={{ marginLeft: 4, opacity: 0.6 }}>JGs</span>
-                </div>
-              </div>
-              <div style={{ display: "flex" }}>
-                {[["historico", "HISTÓRICO"], ["nova", "+ NOVA"], ["stats", "STATS"]].map(([key, label]) => (
-                  <button
-                    key={key}
-                    onClick={() => setView(key)}
-                    className={`nav-btn ${view === key ? "active" : ""}`}
-                    style={{ flex: 1, padding: "10px 0", fontSize: 14 }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ maxWidth: 640, margin: "0 auto", padding: "24px 16px 80px" }}>
-
-            {/* HISTÓRICO */}
-            {view === "historico" && (
-              <div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
-                  {[
-                    { label: "GOLS", value: totalGols, icon: "⚽", color: "#0057A8" },
-                    { label: "ASSISTS", value: totalAssist, icon: "🅰️", color: "#1A74C8" },
-                    { label: "MÉDIA/JG", value: mediaGols, icon: "📈", color: "#4FA3E8" },
-                  ].map((s) => (
-                    <div key={s.label} className="card" style={{
-                      background: "#fff", border: "1.5px solid #DBEAFE",
-                      borderRadius: 14, padding: "14px 10px", textAlign: "center",
-                      boxShadow: "0 2px 12px rgba(0,87,168,0.08)",
-                    }}>
-                      <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
-                      <div style={{ fontSize: 30, color: s.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{s.value}</div>
-                      <div style={{ fontSize: 9, color: "#7BAFD4", letterSpacing: 2, fontFamily: "Oswald, sans-serif", marginTop: 3 }}>{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {partidas.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "60px 20px", color: "#B8C8D8" }}>
-                    <div style={{ fontSize: 56, marginBottom: 12 }}>⚽</div>
-                    <div style={{ fontSize: 18, letterSpacing: 2, color: "#7BAFD4", fontFamily: "Bebas Neue, sans-serif" }}>NENHUMA PARTIDA</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, marginTop: 6, color: "#B8C8D8" }}>Registre sua primeira pelada!</div>
-                    <button onClick={() => setView("nova")} style={{
-                      marginTop: 20, background: "linear-gradient(135deg, #0057A8, #1A74C8)",
-                      border: "none", borderRadius: 10, color: "#fff",
-                      padding: "12px 32px", fontSize: 15, letterSpacing: 3,
-                      cursor: "pointer", fontFamily: "Bebas Neue, sans-serif",
-                      boxShadow: "0 4px 16px rgba(0,87,168,0.25)",
-                    }}>
-                      + NOVA PARTIDA
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {partidas.map((p) => (
-                      <div key={p.id} className="card" style={{
-                        background: "#fff", border: "1.5px solid #DBEAFE",
-                        borderRadius: 14, overflow: "hidden",
-                        boxShadow: "0 2px 12px rgba(0,87,168,0.07)", cursor: "pointer",
-                      }}>
-                        <div
-                          className="partida-row"
-                          onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
-                          style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}
-                        >
-                          <div style={{
-                            minWidth: 52, textAlign: "center",
-                            background: "linear-gradient(135deg, #0057A8, #1A74C8)",
-                            borderRadius: 10, padding: "8px 4px",
-                          }}>
-                            <div style={{ fontSize: 22, color: "#fff", lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>
-                              {formatDate(p.data).split("/")[0]}
-                            </div>
-                            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", letterSpacing: 1, fontFamily: "Oswald, sans-serif" }}>
-                              {formatDate(p.data).slice(3)}
-                            </div>
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                              {resultadoBadge(p.resultado)}
-                              {p.video && <Badge color="blue">📹 Vídeo</Badge>}
-                            </div>
-                            <div style={{ display: "flex", gap: 16, fontFamily: "Oswald, sans-serif", fontWeight: 400, fontSize: 14, color: "#7BAFD4" }}>
-                              <span>⚽ <b style={{ color: "#0057A8", fontFamily: "Bebas Neue, sans-serif", fontSize: 18 }}>{p.gols || 0}</b></span>
-                              <span>🅰️ <b style={{ color: "#1A74C8", fontFamily: "Bebas Neue, sans-serif", fontSize: 18 }}>{p.assistencias || 0}</b></span>
-                            </div>
-                          </div>
-                          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                            <button
-                              className="delete-btn"
-                              onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
-                              style={{
-                                background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)",
-                                borderRadius: 6, color: "#ef4444", padding: "3px 8px",
-                                fontSize: 10, cursor: "pointer", letterSpacing: 1, fontFamily: "Oswald, sans-serif",
-                              }}
-                            >DEL</button>
-                            <span style={{ color: "#B8C8D8", fontSize: 14 }}>{expandedId === p.id ? "▲" : "▼"}</span>
-                          </div>
-                        </div>
-                        {expandedId === p.id && (
-                          <div style={{ borderTop: "1.5px solid #DBEAFE", padding: "14px 16px", background: "#F5F9FF" }}>
-                            {p.notas && (
-                              <p style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, color: "#1A74C8", marginBottom: 12, lineHeight: 1.6 }}>
-                                📝 {p.notas}
-                              </p>
-                            )}
-                            {p.video && (
-                              <div>
-                                <div style={{ fontSize: 10, color: "#0057A8", letterSpacing: 2, marginBottom: 8, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>
-                                  📹 {p.videoName}
-                                </div>
-                                <video src={p.video} controls style={{ width: "100%", borderRadius: 10, maxHeight: 240, background: "#000" }} />
-                              </div>
-                            )}
-                            {!p.notas && !p.video && (
-                              <p style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, color: "#B8C8D8", fontSize: 13 }}>Sem notas ou vídeo registrado.</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* NOVA */}
-            {view === "nova" && (
-              <div style={{
-                background: "#fff", border: "1.5px solid #DBEAFE",
-                borderRadius: 18, padding: 24, boxShadow: "0 4px 24px rgba(0,87,168,0.1)",
-              }}>
-                <div style={{ fontSize: 22, letterSpacing: 3, marginBottom: 24, color: "#0057A8", fontFamily: "Bebas Neue, sans-serif", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>⚽</span> REGISTRAR PARTIDA
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div>
-                    <label style={labelStyle}>DATA</label>
-                    <input type="date" value={form.data} onChange={(e) => setForm((f) => ({ ...f, data: e.target.value }))} className="field-focus" style={fieldStyle} />
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div>
-                      <label style={labelStyle}>GOLS ⚽</label>
-                      <input type="number" min="0" value={form.gols} onChange={(e) => setForm((f) => ({ ...f, gols: e.target.value }))} placeholder="0" className="field-focus" style={{ ...fieldStyle, fontSize: 28, fontFamily: "Bebas Neue, sans-serif", textAlign: "center", color: "#0057A8" }} />
-                    </div>
-                    <div>
-                      <label style={{ ...labelStyle, color: "#1A74C8" }}>ASSISTS 🅰️</label>
-                      <input type="number" min="0" value={form.assistencias} onChange={(e) => setForm((f) => ({ ...f, assistencias: e.target.value }))} placeholder="0" className="field-focus" style={{ ...fieldStyle, fontSize: 28, fontFamily: "Bebas Neue, sans-serif", textAlign: "center", color: "#1A74C8" }} />
-                    </div>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>RESULTADO</label>
-                    <select value={form.resultado} onChange={(e) => setForm((f) => ({ ...f, resultado: e.target.value }))} className="field-focus" style={fieldStyle}>
-                      <option value="">— Selecione —</option>
-                      <option value="Vitória">Vitória</option>
-                      <option value="Empate">Empate</option>
-                      <option value="Derrota">Derrota</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={labelStyle}>NOTAS / OBSERVAÇÕES</label>
-                    <textarea value={form.notas} onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} placeholder="Como foi a pelada? Jogadas incríveis, quem se destacou..." className="field-focus" rows={3} style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.6 }} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>VÍDEO DA PELADA 📹</label>
-                    <div
-                      onClick={() => fileRef.current.click()}
-                      style={{
-                        border: `2px dashed ${form.video ? "#0057A8" : "#B8C8D8"}`,
-                        borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer",
-                        background: form.video ? "rgba(0,87,168,0.05)" : "#F5F9FF", transition: "all 0.2s",
-                      }}
-                    >
-                      {form.video ? (
-                        <>
-                          <div style={{ fontSize: 28, marginBottom: 4 }}>✅</div>
-                          <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13, color: "#0057A8", fontWeight: 600 }}>{form.videoName}</div>
-                          <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 11, color: "#7BAFD4", marginTop: 4 }}>Clique para trocar</div>
-                        </>
-                      ) : (
-                        <>
-                          <div style={{ fontSize: 32, marginBottom: 4 }}>📁</div>
-                          <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13, color: "#7BAFD4" }}>Clique para selecionar o vídeo</div>
-                          <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 11, color: "#B8C8D8", marginTop: 2 }}>MP4, MOV, AVI...</div>
-                        </>
-                      )}
-                    </div>
-                    <input ref={fileRef} type="file" accept="video/*" onChange={handleFileChange} style={{ display: "none" }} />
-                  </div>
-                  <button className="submit-btn" onClick={handleSubmit} style={{
-                    marginTop: 8, background: "linear-gradient(135deg, #00244A 0%, #0057A8 60%, #1A74C8 100%)",
-                    border: "none", borderRadius: 12, color: "#fff", padding: "15px", fontSize: 18,
-                    letterSpacing: 4, cursor: "pointer", fontFamily: "Bebas Neue, sans-serif",
-                    boxShadow: "0 4px 20px rgba(0,87,168,0.3)", width: "100%",
-                  }}>
-                    {saved ? "✅ SALVO!" : "SALVAR PARTIDA"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STATS */}
-            {view === "stats" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {partidas.length < 2 ? (
-                  <div style={{ textAlign: "center", padding: "60px 20px", color: "#B8C8D8" }}>
-                    <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
-                    <div style={{ fontSize: 16, letterSpacing: 2, color: "#7BAFD4", fontFamily: "Bebas Neue, sans-serif" }}>REGISTRE MAIS PARTIDAS</div>
-                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, marginTop: 6 }}>Os gráficos aparecem com 2+ partidas.</div>
-                  </div>
-                ) : (
-                  <>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      {[
-                        { label: "TOTAL DE GOLS", value: totalGols, color: "#0057A8" },
-                        { label: "TOTAL ASSISTS", value: totalAssist, color: "#1A74C8" },
-                        { label: "MÉDIA GOLS/JG", value: mediaGols, color: "#4FA3E8" },
-                        { label: "PARTIDAS", value: partidas.length, color: "#00244A" },
-                      ].map((s) => (
-                        <div key={s.label} className="card" style={{
-                          background: "#fff", border: "1.5px solid #DBEAFE",
-                          borderRadius: 14, padding: "18px 14px", boxShadow: "0 2px 12px rgba(0,87,168,0.07)",
-                        }}>
-                          <div style={{ fontSize: 40, color: s.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{s.value}</div>
-                          <div style={{ fontSize: 9, color: "#7BAFD4", letterSpacing: 2, fontFamily: "Oswald, sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
-                      <div style={{ fontSize: 13, letterSpacing: 3, color: "#0057A8", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>GOLS E ASSISTS POR PARTIDA</div>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={chartData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
-                          <XAxis dataKey="name" tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} />
-                          <YAxis tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} allowDecimals={false} />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Line type="monotone" dataKey="Gols" stroke="#0057A8" strokeWidth={2.5} dot={{ r: 4, fill: "#0057A8" }} activeDot={{ r: 6 }} />
-                          <Line type="monotone" dataKey="Assistências" stroke="#4FA3E8" strokeWidth={2.5} dot={{ r: 4, fill: "#4FA3E8" }} activeDot={{ r: 6 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
-                      <div style={{ fontSize: 13, letterSpacing: 3, color: "#00244A", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>GOLS ACUMULADOS</div>
-                      <ResponsiveContainer width="100%" height={180}>
-                        <LineChart data={acumuladoChart}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
-                          <XAxis dataKey="name" tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} />
-                          <YAxis tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} allowDecimals={false} />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Line type="monotone" dataKey="Gols acumulados" stroke="#00244A" strokeWidth={2.5} dot={{ r: 4, fill: "#00244A" }} activeDot={{ r: 6 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                    {(() => {
-                      const v = partidas.filter((p) => p.resultado === "Vitória").length;
-                      const e = partidas.filter((p) => p.resultado === "Empate").length;
-                      const d = partidas.filter((p) => p.resultado === "Derrota").length;
-                      if (v + e + d === 0) return null;
-                      return (
-                        <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
-                          <div style={{ fontSize: 13, letterSpacing: 3, color: "#0057A8", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>APROVEITAMENTO</div>
-                          <div style={{ display: "flex", gap: 10 }}>
-                            {[
-                              { label: "VITÓRIAS", count: v, color: "#22c55e" },
-                              { label: "EMPATES", count: e, color: "#eab308" },
-                              { label: "DERROTAS", count: d, color: "#ef4444" },
-                            ].map((r) => (
-                              <div key={r.label} style={{
-                                flex: 1, textAlign: "center", background: `${r.color}10`,
-                                border: `1.5px solid ${r.color}30`, borderRadius: 12, padding: "14px 8px",
-                              }}>
-                                <div style={{ fontSize: 36, color: r.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{r.count}</div>
-                                <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 9, color: "#7BAFD4", letterSpacing: 2, marginTop: 4, fontWeight: 600 }}>{r.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                          <div style={{ height: 6, borderRadius: 4, overflow: "hidden", marginTop: 14, display: "flex", background: "#F5F9FF" }}>
-                            {v > 0 && <div style={{ flex: v, background: "#22c55e", transition: "flex 0.4s" }} />}
-                            {e > 0 && <div style={{ flex: e, background: "#eab308", transition: "flex 0.4s" }} />}
-                            {d > 0 && <div style={{ flex: d, background: "#ef4444", transition: "flex 0.4s" }} />}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </>
-                )}
-              </div>
-            )}
+          <div>
+            <label class="form-label" style="color:#1A74C8">ASSISTS 🅰️</label>
+            <input type="number" min="0" id="f-assist" placeholder="0" class="form-input form-num assist">
           </div>
         </div>
-      );
-    }
+        <div>
+          <label class="form-label">RESULTADO</label>
+          <select id="f-resultado" class="form-input">
+            <option value="">— Selecione —</option>
+            <option value="Vitória">Vitória</option>
+            <option value="Empate">Empate</option>
+            <option value="Derrota">Derrota</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">NOTAS / OBSERVAÇÕES</label>
+          <textarea id="f-notas" placeholder="Como foi a pelada? Jogadas incríveis, quem se destacou..." class="form-input" rows="3" style="resize:vertical;line-height:1.6"></textarea>
+        </div>
+        <div>
+          <label class="form-label">VÍDEO DA PELADA 📹</label>
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('f-video').click()">
+            <div class="upload-icon" id="upload-icon">📁</div>
+            <div class="upload-text" id="upload-text">Clique para selecionar o vídeo</div>
+            <div class="upload-sub" id="upload-sub">MP4, MOV, AVI...</div>
+          </div>
+          <input type="file" id="f-video" accept="video/*" style="display:none" onchange="handleVideo(this)">
+        </div>
+        <button class="btn-salvar" id="btn-salvar" onclick="salvarPartida()">SALVAR PARTIDA</button>
+      </div>
+    </div>
+  </div>
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<PeladaTracker />);
-  </script>
+  <!-- STATS -->
+  <div id="page-stats" class="page">
+    <div id="stats-vazio" class="empty-state" style="display:none">
+      <div style="font-size:48px;margin-bottom:12px">📊</div>
+      <div class="empty-title">REGISTRE MAIS PARTIDAS</div>
+      <div class="empty-sub">Os gráficos aparecem com 2+ partidas.</div>
+    </div>
+    <div id="stats-content">
+      <div class="stats-grid2" id="stats-nums"></div>
+      <div class="chart-card">
+        <div class="chart-title">GOLS E ASSISTS POR PARTIDA</div>
+        <canvas id="chart-gols" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">GOLS ACUMULADOS</div>
+        <canvas id="chart-acum" height="180"></canvas>
+      </div>
+      <div class="aprov-card" id="aprov-card"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'pelada_partidas';
+let partidas = [];
+let videoData = null;
+let videoName = '';
+let chartGols = null;
+let chartAcum = null;
+
+function getPartidas() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function savePartidas(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function fmtDate(str) {
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+function resultadoBadge(r) {
+  if (!r) return '';
+  if (r === 'Vitória') return '<span class="badge badge-green">Vitória</span>';
+  if (r === 'Empate') return '<span class="badge badge-yellow">Empate</span>';
+  return '<span class="badge badge-red">Derrota</span>';
+}
+
+function navTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const map = { historico: 0, nova: 1, stats: 2 };
+  btns[map[page]].classList.add('active');
+  if (page === 'historico') renderHistorico();
+  if (page === 'stats') renderStats();
+}
+
+function renderHistorico() {
+  partidas = getPartidas();
+  const total = partidas.length;
+  const totalGols = partidas.reduce((s,p) => s + Number(p.gols||0), 0);
+  const totalAssist = partidas.reduce((s,p) => s + Number(p.assist||0), 0);
+  const media = total ? (totalGols/total).toFixed(1) : '—';
+
+  document.getElementById('total-jgs').textContent = total;
+  document.getElementById('total-gols').textContent = totalGols;
+  document.getElementById('total-assist').textContent = totalAssist;
+  document.getElementById('media-gols').textContent = media;
+
+  const lista = document.getElementById('lista-partidas');
+  if (total === 0) {
+    lista.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">⚽</div>
+      <div class="empty-title">NENHUMA PARTIDA</div>
+      <div class="empty-sub">Registre sua primeira pelada!</div>
+      <button class="btn-nova-empty" onclick="navTo('nova')">+ NOVA PARTIDA</button>
+    </div>`;
+    return;
+  }
+  lista.innerHTML = `<div class="partidas-list">${partidas.map(p => `
+    <div class="partida-card" id="card-${p.id}">
+      <div class="partida-row" onclick="toggleExpand(${p.id})">
+        <div class="date-block">
+          <div class="date-day">${fmtDate(p.data).split('/')[0]}</div>
+          <div class="date-rest">${fmtDate(p.data).slice(3)}</div>
+        </div>
+        <div class="partida-info">
+          <div class="partida-badges">
+            ${resultadoBadge(p.resultado)}
+            ${p.video ? '<span class="badge badge-blue">📹 Vídeo</span>' : ''}
+          </div>
+          <div class="partida-nums">
+            <span>⚽ <b class="partida-num-val">${p.gols||0}</b></span>
+            <span>🅰️ <b class="partida-num-val assist">${p.assist||0}</b></span>
+          </div>
+        </div>
+        <div class="partida-actions">
+          <button class="del-btn" onclick="deletar(${p.id},event)">DEL</button>
+          <span class="expand-arrow" id="arrow-${p.id}">▼</span>
+        </div>
+      </div>
+      <div class="partida-expand" id="expand-${p.id}">
+        ${p.notas ? `<p class="expand-nota">📝 ${p.notas}</p>` : ''}
+        ${p.video ? `<div class="expand-video-label">📹 ${p.videoName||'vídeo'}</div><video src="${p.video}" controls class="expand-video"></video>` : ''}
+        ${!p.notas && !p.video ? '<p class="expand-empty">Sem notas ou vídeo registrado.</p>' : ''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function toggleExpand(id) {
+  const el = document.getElementById('expand-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  const open = el.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+}
+
+function deletar(id, e) {
+  e.stopPropagation();
+  partidas = getPartidas().filter(p => p.id !== id);
+  savePartidas(partidas);
+  renderHistorico();
+}
+
+function handleVideo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    videoData = ev.target.result;
+    videoName = file.name;
+    document.getElementById('upload-area').classList.add('has-video');
+    document.getElementById('upload-icon').textContent = '✅';
+    document.getElementById('upload-text').textContent = file.name;
+    document.getElementById('upload-sub').textContent = 'Clique para trocar';
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvarPartida() {
+  const data = document.getElementById('f-data').value;
+  if (!data) { alert('Informe a data!'); return; }
+  const nova = {
+    id: Date.now(),
+    data,
+    gols: document.getElementById('f-gols').value || '0',
+    assist: document.getElementById('f-assist').value || '0',
+    resultado: document.getElementById('f-resultado').value,
+    notas: document.getElementById('f-notas').value,
+    video: videoData,
+    videoName: videoName,
+  };
+  partidas = getPartidas();
+  partidas.unshift(nova);
+  savePartidas(partidas);
+
+  // Reset form
+  document.getElementById('f-gols').value = '';
+  document.getElementById('f-assist').value = '';
+  document.getElementById('f-resultado').value = '';
+  document.getElementById('f-notas').value = '';
+  document.getElementById('f-video').value = '';
+  videoData = null; videoName = '';
+  document.getElementById('upload-area').classList.remove('has-video');
+  document.getElementById('upload-icon').textContent = '📁';
+  document.getElementById('upload-text').textContent = 'Clique para selecionar o vídeo';
+  document.getElementById('upload-sub').textContent = 'MP4, MOV, AVI...';
+
+  const btn = document.getElementById('btn-salvar');
+  btn.textContent = '✅ SALVO!';
+  setTimeout(() => { btn.textContent = 'SALVAR PARTIDA'; }, 2000);
+  navTo('historico');
+}
+
+function renderStats() {
+  partidas = getPartidas();
+  const sorted = [...partidas].sort((a,b) => a.data.localeCompare(b.data));
+
+  if (partidas.length < 2) {
+    document.getElementById('stats-vazio').style.display = 'block';
+    document.getElementById('stats-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('stats-vazio').style.display = 'none';
+  document.getElementById('stats-content').style.display = 'block';
+
+  const totalGols = partidas.reduce((s,p) => s+Number(p.gols||0),0);
+  const totalAssist = partidas.reduce((s,p) => s+Number(p.assist||0),0);
+  const media = partidas.length ? (totalGols/partidas.length).toFixed(1) : '—';
+
+  document.getElementById('stats-nums').innerHTML = [
+    {label:'TOTAL DE GOLS', value:totalGols, color:'#0057A8'},
+    {label:'TOTAL ASSISTS', value:totalAssist, color:'#1A74C8'},
+    {label:'MÉDIA GOLS/JG', value:media, color:'#4FA3E8'},
+    {label:'PARTIDAS', value:partidas.length, color:'#00244A'},
+  ].map(s => `<div class="stat-big">
+    <div class="stat-big-val" style="color:${s.color}">${s.value}</div>
+    <div class="stat-big-label">${s.label}</div>
+  </div>`).join('');
+
+  const labels = sorted.map(p => fmtDate(p.data));
+  const gols = sorted.map(p => Number(p.gols||0));
+  const assists = sorted.map(p => Number(p.assist||0));
+  let acum = 0;
+  const golsAcum = sorted.map(p => { acum += Number(p.gols||0); return acum; });
+
+  if (chartGols) chartGols.destroy();
+  chartGols = new Chart(document.getElementById('chart-gols'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label:'Gols', data:gols, borderColor:'#0057A8', backgroundColor:'rgba(0,87,168,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 },
+        { label:'Assists', data:assists, borderColor:'#4FA3E8', backgroundColor:'rgba(79,163,232,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 },
+      ]
+    },
+    options: { plugins:{legend:{labels:{color:'#7BAFD4',font:{family:'Oswald'}}}}, scales:{ x:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}}}, y:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}},beginAtZero:true} } }
+  });
+
+  if (chartAcum) chartAcum.destroy();
+  chartAcum = new Chart(document.getElementById('chart-acum'), {
+    type: 'line',
+    data: { labels, datasets: [{ label:'Gols acumulados', data:golsAcum, borderColor:'#00244A', backgroundColor:'rgba(0,36,74,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 }] },
+    options: { plugins:{legend:{labels:{color:'#7BAFD4',font:{family:'Oswald'}}}}, scales:{ x:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}}}, y:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}},beginAtZero:true} } }
+  });
+
+  const v = partidas.filter(p => p.resultado==='Vitória').length;
+  const e = partidas.filter(p => p.resultado==='Empate').length;
+  const d = partidas.filter(p => p.resultado==='Derrota').length;
+  if (v+e+d > 0) {
+    document.getElementById('aprov-card').innerHTML = `
+      <div class="chart-title">APROVEITAMENTO</div>
+      <div class="aprov-grid">
+        ${[{l:'VITÓRIAS',c:v,cor:'#22c55e'},{l:'EMPATES',c:e,cor:'#eab308'},{l:'DERROTAS',c:d,cor:'#ef4444'}].map(r=>`
+          <div class="aprov-item" style="background:${r.cor}10;border:1.5px solid ${r.cor}30">
+            <div class="aprov-val" style="color:${r.cor}">${r.c}</div>
+            <div class="aprov-label">${r.l}</div>
+          </div>`).join('')}
+      </div>
+      <div class="aprov-bar">
+        ${v>0?`<div style="flex:${v};background:#22c55e"></div>`:''}
+        ${e>0?`<div style="flex:${e};background:#eab308"></div>`:''}
+        ${d>0?`<div style="flex:${d};background:#ef4444"></div>`:''}
+      </div>`;
+  } else {
+    document.getElementById('aprov-card').innerHTML = '';
+  }
+}
+
+// Init
+document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+renderHistorico();
+</script>
 </body>
 </html>
