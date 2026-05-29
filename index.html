@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FUT WIN — Pelada Stats</title>
+  <meta name="theme-color" content="#00244A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FUT WIN">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>* { box-sizing: border-box; margin: 0; padding: 0; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    const { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
+
+    const STORAGE_KEY = "pelada_partidas";
+
+    const defaultForm = {
+      data: new Date().toISOString().split("T")[0],
+      gols: "",
+      assistencias: "",
+      resultado: "",
+      notas: "",
+      video: null,
+      videoName: "",
+    };
+
+    function formatDate(dateStr) {
+      const [y, m, d] = dateStr.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function Badge({ children, color }) {
+      const colors = {
+        green: "background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.35)",
+        yellow: "background:rgba(234,179,8,0.15);color:#eab308;border:1px solid rgba(234,179,8,0.35)",
+        red: "background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.35)",
+        blue: "background:rgba(0,87,168,0.15);color:#4FA3E8;border:1px solid rgba(79,163,232,0.35)",
+      };
+      const style = colors[color] || colors.blue;
+      return (
+        <span style={{
+          fontSize: 10, padding: "2px 8px", borderRadius: 20, fontWeight: 700,
+          letterSpacing: 1, fontFamily: "Oswald, sans-serif",
+          ...Object.fromEntries(style.split(";").filter(Boolean).map(s => {
+            const [k, v] = s.split(":");
+            const key = k.trim().replace(/-([a-z])/g, (_, l) => l.toUpperCase());
+            return [key, v.trim()];
+          }))
+        }}>
+          {children}
+        </span>
+      );
+    }
+
+    const CustomTooltip = ({ active, payload, label }) => {
+      if (active && payload && payload.length) {
+        return (
+          <div style={{
+            background: "#00244A", border: "1px solid #1A74C8",
+            borderRadius: 10, padding: "10px 16px", fontSize: 13,
+            boxShadow: "0 8px 32px rgba(0,87,168,0.3)", fontFamily: "Oswald, sans-serif"
+          }}>
+            <p style={{ color: "#4FA3E8", fontWeight: 700, marginBottom: 4 }}>{label}</p>
+            {payload.map((p) => (
+              <p key={p.name} style={{ color: p.color, margin: 0 }}>
+                {p.name}: <b>{p.value}</b>
+              </p>
+            ))}
+          </div>
+        );
+      }
+      return null;
+    };
+
+    function PeladaTracker() {
+      const [partidas, setPartidas] = useState([]);
+      const [form, setForm] = useState(defaultForm);
+      const [view, setView] = useState("historico");
+      const [expandedId, setExpandedId] = useState(null);
+      const [saved, setSaved] = useState(false);
+      const fileRef = useRef();
+
+      useEffect(() => {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) setPartidas(JSON.parse(stored));
+        } catch {}
+      }, []);
+
+      useEffect(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(partidas));
+        } catch {}
+      }, [partidas]);
+
+      const totalGols = partidas.reduce((s, p) => s + Number(p.gols || 0), 0);
+      const totalAssist = partidas.reduce((s, p) => s + Number(p.assistencias || 0), 0);
+      const mediaGols = partidas.length ? (totalGols / partidas.length).toFixed(1) : "—";
+
+      const chartData = [...partidas]
+        .sort((a, b) => a.data.localeCompare(b.data))
+        .map((p) => ({
+          name: formatDate(p.data),
+          Gols: Number(p.gols || 0),
+          Assistências: Number(p.assistencias || 0),
+        }));
+
+      const acumuladoChart = chartData.map((d, i) => ({
+        name: d.name,
+        "Gols acumulados": chartData.slice(0, i + 1).reduce((s, x) => s + x.Gols, 0),
+      }));
+
+      function handleSubmit() {
+        if (!form.data) return;
+        const nova = { ...form, id: Date.now() };
+        setPartidas((prev) => [nova, ...prev]);
+        setForm(defaultForm);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+        setView("historico");
+      }
+
+      function handleDelete(id) {
+        setPartidas((prev) => prev.filter((p) => p.id !== id));
+      }
+
+      function handleFileChange(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setForm((f) => ({ ...f, video: ev.target.result, videoName: file.name }));
+        };
+        reader.readAsDataURL(file);
+      }
+
+      const resultadoBadge = (r) => {
+        if (!r) return null;
+        if (r === "Vitória") return <Badge color="green">Vitória</Badge>;
+        if (r === "Empate") return <Badge color="yellow">Empate</Badge>;
+        return <Badge color="red">Derrota</Badge>;
+      };
+
+      const fieldStyle = {
+        background: "#F5F9FF", border: "1.5px solid #B8C8D8", borderRadius: 8,
+        color: "#00244A", padding: "10px 14px", fontSize: 14,
+        fontFamily: "Oswald, sans-serif", width: "100%", outline: "none", transition: "border-color 0.2s",
+      };
+
+      const labelStyle = {
+        fontSize: 10, letterSpacing: 3, color: "#0057A8", display: "block",
+        marginBottom: 6, fontFamily: "Oswald, sans-serif", fontWeight: 600,
+      };
+
+      return (
+        <div style={{
+          fontFamily: "'Bebas Neue', 'Oswald', sans-serif",
+          background: "linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 40%, #EFF6FF 100%)",
+          minHeight: "100vh", color: "#00244A",
+        }}>
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&display=swap');
+            * { box-sizing: border-box; }
+            ::-webkit-scrollbar { width: 4px; }
+            ::-webkit-scrollbar-track { background: #DBEAFE; }
+            ::-webkit-scrollbar-thumb { background: #0057A8; border-radius: 2px; }
+            input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+            input[type=date]::-webkit-calendar-picker-indicator { filter: invert(20%) sepia(80%) saturate(600%) hue-rotate(195deg); cursor: pointer; }
+            .field-focus:focus { border-color: #0057A8 !important; background: #EFF6FF !important; box-shadow: 0 0 0 3px rgba(0,87,168,0.12) !important; }
+            .nav-btn { transition: all 0.2s; font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; cursor: pointer; background: none; border: none; }
+            .nav-btn.active { color: #fff; border-bottom: 3px solid #fff; }
+            .nav-btn:not(.active) { color: rgba(255,255,255,0.4); border-bottom: 3px solid transparent; }
+            .card { transition: transform 0.18s, box-shadow 0.18s; }
+            .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
+            .delete-btn { opacity: 0; transition: opacity 0.2s; }
+            .partida-row:hover .delete-btn { opacity: 1; }
+            .submit-btn { transition: all 0.15s; }
+            .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+            .submit-btn:active { transform: scale(0.98); }
+            select option { background: #fff; color: #00244A; }
+          `}</style>
+
+          {/* HEADER */}
+          <div style={{
+            background: "linear-gradient(135deg, #00244A 0%, #0057A8 100%)",
+            boxShadow: "0 4px 24px rgba(0,87,168,0.25)",
+            position: "sticky", top: 0, zIndex: 50,
+          }}>
+            <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 16, paddingBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12,
+                    background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)",
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
+                  }}>⚽</div>
+                  <div>
+                    <div style={{ fontSize: 24, letterSpacing: 3, color: "#fff", lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>
+                      FUT WIN
+                    </div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", letterSpacing: 4, fontFamily: "Oswald, sans-serif", fontWeight: 300 }}>
+                      PELADA STATS
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: 8, padding: "4px 12px", fontFamily: "Oswald, sans-serif", fontSize: 12, color: "#fff",
+                }}>
+                  <span style={{ fontFamily: "Bebas Neue, sans-serif", fontSize: 20, lineHeight: 1 }}>{partidas.length}</span>
+                  <span style={{ marginLeft: 4, opacity: 0.6 }}>JGs</span>
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                {[["historico", "HISTÓRICO"], ["nova", "+ NOVA"], ["stats", "STATS"]].map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setView(key)}
+                    className={`nav-btn ${view === key ? "active" : ""}`}
+                    style={{ flex: 1, padding: "10px 0", fontSize: 14 }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ maxWidth: 640, margin: "0 auto", padding: "24px 16px 80px" }}>
+
+            {/* HISTÓRICO */}
+            {view === "historico" && (
+              <div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
+                  {[
+                    { label: "GOLS", value: totalGols, icon: "⚽", color: "#0057A8" },
+                    { label: "ASSISTS", value: totalAssist, icon: "🅰️", color: "#1A74C8" },
+                    { label: "MÉDIA/JG", value: mediaGols, icon: "📈", color: "#4FA3E8" },
+                  ].map((s) => (
+                    <div key={s.label} className="card" style={{
+                      background: "#fff", border: "1.5px solid #DBEAFE",
+                      borderRadius: 14, padding: "14px 10px", textAlign: "center",
+                      boxShadow: "0 2px 12px rgba(0,87,168,0.08)",
+                    }}>
+                      <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
+                      <div style={{ fontSize: 30, color: s.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{s.value}</div>
+                      <div style={{ fontSize: 9, color: "#7BAFD4", letterSpacing: 2, fontFamily: "Oswald, sans-serif", marginTop: 3 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {partidas.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "60px 20px", color: "#B8C8D8" }}>
+                    <div style={{ fontSize: 56, marginBottom: 12 }}>⚽</div>
+                    <div style={{ fontSize: 18, letterSpacing: 2, color: "#7BAFD4", fontFamily: "Bebas Neue, sans-serif" }}>NENHUMA PARTIDA</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, marginTop: 6, color: "#B8C8D8" }}>Registre sua primeira pelada!</div>
+                    <button onClick={() => setView("nova")} style={{
+                      marginTop: 20, background: "linear-gradient(135deg, #0057A8, #1A74C8)",
+                      border: "none", borderRadius: 10, color: "#fff",
+                      padding: "12px 32px", fontSize: 15, letterSpacing: 3,
+                      cursor: "pointer", fontFamily: "Bebas Neue, sans-serif",
+                      boxShadow: "0 4px 16px rgba(0,87,168,0.25)",
+                    }}>
+                      + NOVA PARTIDA
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {partidas.map((p) => (
+                      <div key={p.id} className="card" style={{
+                        background: "#fff", border: "1.5px solid #DBEAFE",
+                        borderRadius: 14, overflow: "hidden",
+                        boxShadow: "0 2px 12px rgba(0,87,168,0.07)", cursor: "pointer",
+                      }}>
+                        <div
+                          className="partida-row"
+                          onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                          style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 14 }}
+                        >
+                          <div style={{
+                            minWidth: 52, textAlign: "center",
+                            background: "linear-gradient(135deg, #0057A8, #1A74C8)",
+                            borderRadius: 10, padding: "8px 4px",
+                          }}>
+                            <div style={{ fontSize: 22, color: "#fff", lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>
+                              {formatDate(p.data).split("/")[0]}
+                            </div>
+                            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", letterSpacing: 1, fontFamily: "Oswald, sans-serif" }}>
+                              {formatDate(p.data).slice(3)}
+                            </div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                              {resultadoBadge(p.resultado)}
+                              {p.video && <Badge color="blue">📹 Vídeo</Badge>}
+                            </div>
+                            <div style={{ display: "flex", gap: 16, fontFamily: "Oswald, sans-serif", fontWeight: 400, fontSize: 14, color: "#7BAFD4" }}>
+                              <span>⚽ <b style={{ color: "#0057A8", fontFamily: "Bebas Neue, sans-serif", fontSize: 18 }}>{p.gols || 0}</b></span>
+                              <span>🅰️ <b style={{ color: "#1A74C8", fontFamily: "Bebas Neue, sans-serif", fontSize: 18 }}>{p.assistencias || 0}</b></span>
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                            <button
+                              className="delete-btn"
+                              onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
+                              style={{
+                                background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)",
+                                borderRadius: 6, color: "#ef4444", padding: "3px 8px",
+                                fontSize: 10, cursor: "pointer", letterSpacing: 1, fontFamily: "Oswald, sans-serif",
+                              }}
+                            >DEL</button>
+                            <span style={{ color: "#B8C8D8", fontSize: 14 }}>{expandedId === p.id ? "▲" : "▼"}</span>
+                          </div>
+                        </div>
+                        {expandedId === p.id && (
+                          <div style={{ borderTop: "1.5px solid #DBEAFE", padding: "14px 16px", background: "#F5F9FF" }}>
+                            {p.notas && (
+                              <p style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, color: "#1A74C8", marginBottom: 12, lineHeight: 1.6 }}>
+                                📝 {p.notas}
+                              </p>
+                            )}
+                            {p.video && (
+                              <div>
+                                <div style={{ fontSize: 10, color: "#0057A8", letterSpacing: 2, marginBottom: 8, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>
+                                  📹 {p.videoName}
+                                </div>
+                                <video src={p.video} controls style={{ width: "100%", borderRadius: 10, maxHeight: 240, background: "#000" }} />
+                              </div>
+                            )}
+                            {!p.notas && !p.video && (
+                              <p style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, color: "#B8C8D8", fontSize: 13 }}>Sem notas ou vídeo registrado.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* NOVA */}
+            {view === "nova" && (
+              <div style={{
+                background: "#fff", border: "1.5px solid #DBEAFE",
+                borderRadius: 18, padding: 24, boxShadow: "0 4px 24px rgba(0,87,168,0.1)",
+              }}>
+                <div style={{ fontSize: 22, letterSpacing: 3, marginBottom: 24, color: "#0057A8", fontFamily: "Bebas Neue, sans-serif", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>⚽</span> REGISTRAR PARTIDA
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div>
+                    <label style={labelStyle}>DATA</label>
+                    <input type="date" value={form.data} onChange={(e) => setForm((f) => ({ ...f, data: e.target.value }))} className="field-focus" style={fieldStyle} />
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div>
+                      <label style={labelStyle}>GOLS ⚽</label>
+                      <input type="number" min="0" value={form.gols} onChange={(e) => setForm((f) => ({ ...f, gols: e.target.value }))} placeholder="0" className="field-focus" style={{ ...fieldStyle, fontSize: 28, fontFamily: "Bebas Neue, sans-serif", textAlign: "center", color: "#0057A8" }} />
+                    </div>
+                    <div>
+                      <label style={{ ...labelStyle, color: "#1A74C8" }}>ASSISTS 🅰️</label>
+                      <input type="number" min="0" value={form.assistencias} onChange={(e) => setForm((f) => ({ ...f, assistencias: e.target.value }))} placeholder="0" className="field-focus" style={{ ...fieldStyle, fontSize: 28, fontFamily: "Bebas Neue, sans-serif", textAlign: "center", color: "#1A74C8" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>RESULTADO</label>
+                    <select value={form.resultado} onChange={(e) => setForm((f) => ({ ...f, resultado: e.target.value }))} className="field-focus" style={fieldStyle}>
+                      <option value="">— Selecione —</option>
+                      <option value="Vitória">Vitória</option>
+                      <option value="Empate">Empate</option>
+                      <option value="Derrota">Derrota</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>NOTAS / OBSERVAÇÕES</label>
+                    <textarea value={form.notas} onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} placeholder="Como foi a pelada? Jogadas incríveis, quem se destacou..." className="field-focus" rows={3} style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.6 }} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>VÍDEO DA PELADA 📹</label>
+                    <div
+                      onClick={() => fileRef.current.click()}
+                      style={{
+                        border: `2px dashed ${form.video ? "#0057A8" : "#B8C8D8"}`,
+                        borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer",
+                        background: form.video ? "rgba(0,87,168,0.05)" : "#F5F9FF", transition: "all 0.2s",
+                      }}
+                    >
+                      {form.video ? (
+                        <>
+                          <div style={{ fontSize: 28, marginBottom: 4 }}>✅</div>
+                          <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13, color: "#0057A8", fontWeight: 600 }}>{form.videoName}</div>
+                          <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 11, color: "#7BAFD4", marginTop: 4 }}>Clique para trocar</div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 32, marginBottom: 4 }}>📁</div>
+                          <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13, color: "#7BAFD4" }}>Clique para selecionar o vídeo</div>
+                          <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 11, color: "#B8C8D8", marginTop: 2 }}>MP4, MOV, AVI...</div>
+                        </>
+                      )}
+                    </div>
+                    <input ref={fileRef} type="file" accept="video/*" onChange={handleFileChange} style={{ display: "none" }} />
+                  </div>
+                  <button className="submit-btn" onClick={handleSubmit} style={{
+                    marginTop: 8, background: "linear-gradient(135deg, #00244A 0%, #0057A8 60%, #1A74C8 100%)",
+                    border: "none", borderRadius: 12, color: "#fff", padding: "15px", fontSize: 18,
+                    letterSpacing: 4, cursor: "pointer", fontFamily: "Bebas Neue, sans-serif",
+                    boxShadow: "0 4px 20px rgba(0,87,168,0.3)", width: "100%",
+                  }}>
+                    {saved ? "✅ SALVO!" : "SALVAR PARTIDA"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STATS */}
+            {view === "stats" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {partidas.length < 2 ? (
+                  <div style={{ textAlign: "center", padding: "60px 20px", color: "#B8C8D8" }}>
+                    <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
+                    <div style={{ fontSize: 16, letterSpacing: 2, color: "#7BAFD4", fontFamily: "Bebas Neue, sans-serif" }}>REGISTRE MAIS PARTIDAS</div>
+                    <div style={{ fontFamily: "Oswald, sans-serif", fontWeight: 300, fontSize: 13, marginTop: 6 }}>Os gráficos aparecem com 2+ partidas.</div>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      {[
+                        { label: "TOTAL DE GOLS", value: totalGols, color: "#0057A8" },
+                        { label: "TOTAL ASSISTS", value: totalAssist, color: "#1A74C8" },
+                        { label: "MÉDIA GOLS/JG", value: mediaGols, color: "#4FA3E8" },
+                        { label: "PARTIDAS", value: partidas.length, color: "#00244A" },
+                      ].map((s) => (
+                        <div key={s.label} className="card" style={{
+                          background: "#fff", border: "1.5px solid #DBEAFE",
+                          borderRadius: 14, padding: "18px 14px", boxShadow: "0 2px 12px rgba(0,87,168,0.07)",
+                        }}>
+                          <div style={{ fontSize: 40, color: s.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{s.value}</div>
+                          <div style={{ fontSize: 9, color: "#7BAFD4", letterSpacing: 2, fontFamily: "Oswald, sans-serif", marginTop: 6, fontWeight: 600 }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
+                      <div style={{ fontSize: 13, letterSpacing: 3, color: "#0057A8", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>GOLS E ASSISTS POR PARTIDA</div>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
+                          <XAxis dataKey="name" tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} />
+                          <YAxis tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} allowDecimals={false} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Line type="monotone" dataKey="Gols" stroke="#0057A8" strokeWidth={2.5} dot={{ r: 4, fill: "#0057A8" }} activeDot={{ r: 6 }} />
+                          <Line type="monotone" dataKey="Assistências" stroke="#4FA3E8" strokeWidth={2.5} dot={{ r: 4, fill: "#4FA3E8" }} activeDot={{ r: 6 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
+                      <div style={{ fontSize: 13, letterSpacing: 3, color: "#00244A", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>GOLS ACUMULADOS</div>
+                      <ResponsiveContainer width="100%" height={180}>
+                        <LineChart data={acumuladoChart}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
+                          <XAxis dataKey="name" tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} />
+                          <YAxis tick={{ fill: "#7BAFD4", fontSize: 10, fontFamily: "Oswald" }} allowDecimals={false} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Line type="monotone" dataKey="Gols acumulados" stroke="#00244A" strokeWidth={2.5} dot={{ r: 4, fill: "#00244A" }} activeDot={{ r: 6 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    {(() => {
+                      const v = partidas.filter((p) => p.resultado === "Vitória").length;
+                      const e = partidas.filter((p) => p.resultado === "Empate").length;
+                      const d = partidas.filter((p) => p.resultado === "Derrota").length;
+                      if (v + e + d === 0) return null;
+                      return (
+                        <div style={{ background: "#fff", border: "1.5px solid #DBEAFE", borderRadius: 14, padding: 20, boxShadow: "0 2px 12px rgba(0,87,168,0.07)" }}>
+                          <div style={{ fontSize: 13, letterSpacing: 3, color: "#0057A8", marginBottom: 16, fontFamily: "Oswald, sans-serif", fontWeight: 600 }}>APROVEITAMENTO</div>
+                          <div style={{ display: "flex", gap: 10 }}>
+                            {[
+                              { label: "VITÓRIAS", count: v, color: "#22c55e" },
+                              { label: "EMPATES", count: e, color: "#eab308" },
+                              { label: "DERROTAS", count: d, color: "#ef4444" },
+                            ].map((r) => (
+                              <div key={r.label} style={{
+                                flex: 1, textAlign: "center", background: `${r.color}10`,
+                                border: `1.5px solid ${r.color}30`, borderRadius: 12, padding: "14px 8px",
+                              }}>
+                                <div style={{ fontSize: 36, color: r.color, lineHeight: 1, fontFamily: "Bebas Neue, sans-serif" }}>{r.count}</div>
+                                <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 9, color: "#7BAFD4", letterSpacing: 2, marginTop: 4, fontWeight: 600 }}>{r.label}</div>
+                              </div>
+                            ))}
+                          </div>
+                          <div style={{ height: 6, borderRadius: 4, overflow: "hidden", marginTop: 14, display: "flex", background: "#F5F9FF" }}>
+                            {v > 0 && <div style={{ flex: v, background: "#22c55e", transition: "flex 0.4s" }} />}
+                            {e > 0 && <div style={{ flex: e, background: "#eab308", transition: "flex 0.4s" }} />}
+                            {d > 0 && <div style={{ flex: d, background: "#ef4444", transition: "flex 0.4s" }} />}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<PeladaTracker />);
+  </script>
+</body>
+</html>
