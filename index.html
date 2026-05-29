@@ -1,132 +1,270 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FUT WIN</title>
-  <meta name="theme-color" content="#00244A">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="FUT WIN">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bruno Melo Win</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600;700&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Oswald', sans-serif; background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 40%, #EFF6FF 100%); min-height: 100vh; color: #00244A; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* SPLASH */
-    #splash {
-      position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(160deg, #00244A 0%, #0057A8 60%, #1A74C8 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0; transition: opacity 0.6s ease;
+    body {
+      font-family: 'Oswald', sans-serif;
+      background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 40%, #EFF6FF 100%);
+      min-height: 100vh;
+      color: #00244A;
     }
-    #splash.hide { opacity: 0; pointer-events: none; }
-    .splash-logo { width: 90px; height: 90px; border-radius: 24px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 46px; margin-bottom: 28px; animation: splashPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; }
-    .splash-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 6px; color: #fff; line-height: 1; animation: splashFade 0.5s ease 0.5s both; }
-    .splash-sub { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 6px; color: rgba(255,255,255,0.5); font-weight: 300; margin-top: 8px; animation: splashFade 0.5s ease 0.7s both; }
-    .splash-bar { width: 120px; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; margin-top: 48px; overflow: hidden; animation: splashFade 0.5s ease 0.9s both; }
-    .splash-bar-fill { height: 100%; background: #fff; border-radius: 2px; animation: splashLoad 1.8s ease 1s both; }
-    @keyframes splashPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes splashFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes splashLoad { from { width: 0%; } to { width: 100%; } }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #DBEAFE; }
     ::-webkit-scrollbar-thumb { background: #0057A8; border-radius: 2px; }
-    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-    input[type=date]::-webkit-calendar-picker-indicator { filter: invert(20%) sepia(80%) saturate(600%) hue-rotate(195deg); cursor: pointer; }
 
-    .header { background: linear-gradient(135deg, #00244A 0%, #0057A8 100%); box-shadow: 0 4px 24px rgba(0,87,168,0.25); position: sticky; top: 0; z-index: 50; }
-    .header-inner { max-width: 640px; margin: 0 auto; padding: 0 16px; }
-    .header-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 8px; }
-    .logo-box { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 22px; }
-    .logo-title { font-size: 24px; letter-spacing: 3px; color: #fff; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
-    .logo-sub { font-size: 10px; color: rgba(255,255,255,0.55); letter-spacing: 4px; font-weight: 300; }
-    .jg-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 12px; font-size: 12px; color: #fff; }
-    .jg-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; }
-    .nav { display: flex; }
-    .nav-btn { flex: 1; padding: 10px 0; font-size: 14px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; cursor: pointer; background: none; border: none; border-bottom: 3px solid transparent; color: rgba(255,255,255,0.4); transition: all 0.2s; }
+    /* ── HEADER ── */
+    #header {
+      background: linear-gradient(135deg, #00244A 0%, #0057A8 100%);
+      box-shadow: 0 4px 24px rgba(0,87,168,0.25);
+      position: sticky; top: 0; z-index: 50;
+    }
+    #header-inner {
+      max-width: 640px; margin: 0 auto; padding: 0 16px;
+    }
+    #header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0 8px;
+    }
+    #logo-wrap { display: flex; align-items: center; gap: 12px; }
+    #logo-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    #app-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; letter-spacing: 3px; color: #fff; line-height: 1;
+    }
+    #app-sub {
+      font-size: 10px; color: rgba(255,255,255,0.55);
+      letter-spacing: 4px; font-weight: 300;
+    }
+    #jg-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px; padding: 4px 12px;
+      font-size: 12px; color: #fff;
+    }
+    #jg-badge span { font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; }
+
+    /* ── NAV ── */
+    #nav { display: flex; }
+    .nav-btn {
+      flex: 1; padding: 10px 0; background: none; border: none;
+      font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px;
+      cursor: pointer; color: rgba(255,255,255,0.4);
+      border-bottom: 3px solid transparent; transition: all 0.2s;
+    }
     .nav-btn.active { color: #fff; border-bottom-color: #fff; }
+    .nav-btn:not(.active):hover { color: rgba(255,255,255,0.7); }
 
-    .content { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; }
-    .page { display: none; }
-    .page.active { display: block; }
+    /* ── MAIN ── */
+    #main { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; }
 
-    .mini-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-    .mini-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 12px rgba(0,87,168,0.08); }
-    .mini-icon { font-size: 20px; margin-bottom: 4px; }
-    .mini-val { font-size: 30px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
-    .mini-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 3px; }
+    /* ── VIEWS ── */
+    .view { display: none; flex-direction: column; gap: 16px; }
+    .view.active { display: flex; }
 
-    .empty-state { text-align: center; padding: 60px 20px; color: #B8C8D8; }
-    .empty-icon { font-size: 56px; margin-bottom: 12px; }
-    .empty-title { font-size: 18px; letter-spacing: 2px; color: #7BAFD4; font-family: 'Bebas Neue', sans-serif; }
-    .empty-sub { font-weight: 300; font-size: 13px; margin-top: 6px; color: #B8C8D8; }
-    .btn-nova-empty { margin-top: 20px; background: linear-gradient(135deg, #0057A8, #1A74C8); border: none; border-radius: 10px; color: #fff; padding: 12px 32px; font-size: 15px; letter-spacing: 3px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; box-shadow: 0 4px 16px rgba(0,87,168,0.25); }
+    /* ── MINI STATS ── */
+    #mini-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+    .mini-card {
+      background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px;
+      padding: 14px 10px; text-align: center;
+      box-shadow: 0 2px 12px rgba(0,87,168,0.08);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .mini-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
+    .mini-card .icon { font-size: 20px; margin-bottom: 4px; }
+    .mini-card .val { font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1; }
+    .mini-card .lbl { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 3px; font-weight: 600; }
 
-    .partidas-list { display: flex; flex-direction: column; gap: 10px; }
-    .partida-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,87,168,0.07); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; }
+    /* ── CARDS ── */
+    .partida-card {
+      background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px;
+      overflow: hidden; box-shadow: 0 2px 12px rgba(0,87,168,0.07);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
     .partida-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
-    .partida-row { padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
-    .date-block { min-width: 52px; text-align: center; background: linear-gradient(135deg, #0057A8, #1A74C8); border-radius: 10px; padding: 8px 4px; }
-    .date-day { font-size: 22px; color: #fff; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
-    .date-rest { font-size: 9px; color: rgba(255,255,255,0.7); letter-spacing: 1px; }
+    .partida-row {
+      padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+    }
+    .date-block {
+      min-width: 52px; text-align: center;
+      background: linear-gradient(135deg, #0057A8, #1A74C8);
+      border-radius: 10px; padding: 8px 4px; flex-shrink: 0;
+    }
+    .date-block .day { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff; line-height: 1; }
+    .date-block .rest { font-size: 9px; color: rgba(255,255,255,0.7); letter-spacing: 1px; }
     .partida-info { flex: 1; }
-    .partida-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-    .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; letter-spacing: 1px; font-family: 'Oswald', sans-serif; }
+    .badges-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .badge {
+      font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700;
+      letter-spacing: 1px;
+    }
     .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.35); }
     .badge-yellow { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.35); }
     .badge-red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.35); }
     .badge-blue { background: rgba(0,87,168,0.15); color: #4FA3E8; border: 1px solid rgba(79,163,232,0.35); }
-    .partida-nums { display: flex; gap: 16px; font-weight: 400; font-size: 14px; color: #7BAFD4; }
-    .partida-num-val { color: #0057A8; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
-    .partida-num-val.assist { color: #1A74C8; }
-    .partida-actions { display: flex; gap: 8px; align-items: center; }
-    .del-btn { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 6px; color: #ef4444; padding: 3px 8px; font-size: 10px; cursor: pointer; letter-spacing: 1px; font-family: 'Oswald', sans-serif; opacity: 0; transition: opacity 0.2s; }
-    .partida-row:hover .del-btn { opacity: 1; }
-    .expand-arrow { color: #B8C8D8; font-size: 14px; }
-    .partida-expand { border-top: 1.5px solid #DBEAFE; padding: 14px 16px; background: #F5F9FF; display: none; }
-    .partida-expand.open { display: block; }
-    .expand-nota { font-weight: 300; font-size: 13px; color: #1A74C8; margin-bottom: 12px; line-height: 1.6; }
-    .expand-video-label { font-size: 10px; color: #0057A8; letter-spacing: 2px; margin-bottom: 8px; font-weight: 600; }
-    .expand-video { width: 100%; border-radius: 10px; max-height: 240px; background: #000; }
-    .expand-empty { font-weight: 300; color: #B8C8D8; font-size: 13px; }
+    .stats-row { display: flex; gap: 16px; font-size: 14px; color: #7BAFD4; }
+    .stats-row b { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+    .card-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .del-btn {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 6px; color: #ef4444; padding: 3px 8px;
+      font-size: 10px; cursor: pointer; letter-spacing: 1px;
+      opacity: 0; transition: opacity 0.2s; font-family: 'Oswald', sans-serif;
+    }
+    .partida-card:hover .del-btn { opacity: 1; }
+    .chevron { color: #B8C8D8; font-size: 14px; }
+    .partida-expanded {
+      border-top: 1.5px solid #DBEAFE; padding: 14px 16px; background: #F5F9FF;
+      display: none;
+    }
+    .partida-expanded.open { display: block; }
+    .expanded-video-label { font-size: 10px; color: #0057A8; letter-spacing: 2px; margin-bottom: 8px; font-weight: 600; }
+    .expanded-video { width: 100%; border-radius: 10px; max-height: 240px; background: #000; display: block; }
+    .expanded-empty { color: #B8C8D8; font-size: 13px; font-weight: 300; }
 
-    .form-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 18px; padding: 24px; box-shadow: 0 4px 24px rgba(0,87,168,0.1); }
-    .form-title { font-size: 22px; letter-spacing: 3px; margin-bottom: 24px; color: #0057A8; font-family: 'Bebas Neue', sans-serif; display: flex; align-items: center; gap: 8px; }
-    .form-body { display: flex; flex-direction: column; gap: 16px; }
-    .form-label { font-size: 10px; letter-spacing: 3px; color: #0057A8; display: block; margin-bottom: 6px; font-weight: 600; }
-    .form-input { background: #F5F9FF; border: 1.5px solid #B8C8D8; border-radius: 8px; color: #00244A; padding: 10px 14px; font-size: 14px; font-family: 'Oswald', sans-serif; width: 100%; outline: none; transition: border-color 0.2s; }
-    .form-input:focus { border-color: #0057A8; background: #EFF6FF; box-shadow: 0 0 0 3px rgba(0,87,168,0.12); }
-    .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-num { font-size: 28px; font-family: 'Bebas Neue', sans-serif; text-align: center; color: #0057A8; }
-    .form-num.assist { color: #1A74C8; }
-    .upload-area { border: 2px dashed #B8C8D8; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #F5F9FF; transition: all 0.2s; }
-    .upload-area:hover, .upload-area.has-video { border-color: #0057A8; background: rgba(0,87,168,0.05); }
-    .upload-icon { font-size: 32px; margin-bottom: 4px; }
-    .upload-text { font-size: 13px; color: #7BAFD4; }
-    .upload-sub { font-weight: 300; font-size: 11px; color: #B8C8D8; margin-top: 2px; }
-    .btn-salvar { margin-top: 8px; background: linear-gradient(135deg, #00244A 0%, #0057A8 60%, #1A74C8 100%); border: none; border-radius: 12px; color: #fff; padding: 15px; font-size: 18px; letter-spacing: 4px; cursor: pointer; font-family: 'Bebas Neue', sans-serif; box-shadow: 0 4px 20px rgba(0,87,168,0.3); width: 100%; transition: all 0.15s; }
-    .btn-salvar:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-salvar:active { transform: scale(0.98); }
+    /* ── EMPTY STATE ── */
+    #empty-state { text-align: center; padding: 60px 20px; color: #B8C8D8; }
+    #empty-state .big-icon { font-size: 56px; margin-bottom: 12px; }
+    #empty-state .title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: #7BAFD4; }
+    #empty-state .sub { font-weight: 300; font-size: 13px; margin-top: 6px; }
+    #empty-cta {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #0057A8, #1A74C8);
+      border: none; border-radius: 10px; color: #fff;
+      padding: 12px 32px; font-size: 15px; letter-spacing: 3px;
+      cursor: pointer; font-family: 'Bebas Neue', sans-serif;
+      box-shadow: 0 4px 16px rgba(0,87,168,0.25);
+    }
 
-    .stats-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .stat-big { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 18px 14px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); }
-    .stat-big-val { font-size: 40px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
-    .stat-big-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 6px; font-weight: 600; }
-    .chart-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); margin-bottom: 16px; }
+    /* ── FORM ── */
+    #form-card {
+      background: #fff; border: 1.5px solid #DBEAFE; border-radius: 18px;
+      padding: 24px; box-shadow: 0 4px 24px rgba(0,87,168,0.1);
+    }
+    #form-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px;
+      color: #0057A8; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 10px; letter-spacing: 3px; color: #0057A8;
+      margin-bottom: 6px; font-weight: 600;
+    }
+    .form-label.green { color: #1A74C8; }
+    .field {
+      width: 100%; background: #F5F9FF; border: 1.5px solid #B8C8D8;
+      border-radius: 8px; color: #00244A; padding: 10px 14px; font-size: 14px;
+      font-family: 'Oswald', sans-serif; outline: none; transition: border-color 0.2s;
+    }
+    .field:focus { border-color: #0057A8; background: #EFF6FF; box-shadow: 0 0 0 3px rgba(0,87,168,0.12); }
+    .field-big {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; text-align: center; color: #0057A8;
+    }
+    .field-big.assist { color: #1A74C8; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type=date]::-webkit-calendar-picker-indicator {
+      filter: invert(20%) sepia(80%) saturate(600%) hue-rotate(195deg); cursor: pointer;
+    }
+    select option { background: #fff; color: #00244A; }
+
+    /* Video upload */
+    #video-drop {
+      border: 2px dashed #B8C8D8; border-radius: 12px; padding: 20px;
+      text-align: center; cursor: pointer; background: #F5F9FF;
+      transition: all 0.2s;
+    }
+    #video-drop:hover, #video-drop.has-video { border-color: #0057A8; }
+    #video-drop.has-video { background: rgba(0,87,168,0.05); }
+    #video-drop .drop-icon { font-size: 32px; margin-bottom: 4px; }
+    #video-drop .drop-text { font-size: 13px; color: #7BAFD4; }
+    #video-drop .drop-sub { font-size: 11px; color: #B8C8D8; margin-top: 2px; font-weight: 300; }
+    #video-drop .drop-name { font-size: 13px; color: #0057A8; font-weight: 600; }
+    #video-drop .drop-change { font-size: 11px; color: #7BAFD4; margin-top: 4px; font-weight: 300; }
+
+    /* Submit */
+    #btn-salvar {
+      width: 100%; margin-top: 8px;
+      background: linear-gradient(135deg, #00244A 0%, #0057A8 60%, #1A74C8 100%);
+      border: none; border-radius: 12px; color: #fff; padding: 15px;
+      font-size: 18px; letter-spacing: 4px; cursor: pointer;
+      font-family: 'Bebas Neue', sans-serif;
+      box-shadow: 0 4px 20px rgba(0,87,168,0.3);
+      transition: all 0.15s;
+    }
+    #btn-salvar:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,87,168,0.35); }
+    #btn-salvar:active { transform: scale(0.98); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: linear-gradient(135deg, #00244A, #0057A8);
+      color: #fff; padding: 14px 28px; border-radius: 14px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px;
+      box-shadow: 0 8px 32px rgba(0,87,168,0.4);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+      opacity: 0; z-index: 999; white-space: nowrap;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ── STATS ── */
+    #stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-big {
+      background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px;
+      padding: 18px 14px; box-shadow: 0 2px 12px rgba(0,87,168,0.07);
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .stat-big:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,87,168,0.12); }
+    .stat-big .val { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; }
+    .stat-big .lbl { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 6px; font-weight: 600; }
+    .chart-card {
+      background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px;
+      padding: 20px; box-shadow: 0 2px 12px rgba(0,87,168,0.07);
+    }
     .chart-title { font-size: 13px; letter-spacing: 3px; color: #0057A8; margin-bottom: 16px; font-weight: 600; }
-    .aprov-card { background: #fff; border: 1.5px solid #DBEAFE; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,87,168,0.07); }
-    .aprov-grid { display: flex; gap: 10px; margin-bottom: 14px; }
-    .aprov-item { flex: 1; text-align: center; border-radius: 12px; padding: 14px 8px; }
-    .aprov-val { font-size: 36px; line-height: 1; font-family: 'Bebas Neue', sans-serif; }
-    .aprov-label { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 4px; font-weight: 600; }
-    .aprov-bar { height: 6px; border-radius: 4px; overflow: hidden; display: flex; background: #F5F9FF; }
+    .aprov-row { display: flex; gap: 10px; }
+    .aprov-item {
+      flex: 1; text-align: center; border-radius: 12px; padding: 14px 8px;
+    }
+    .aprov-item .val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; }
+    .aprov-item .lbl { font-size: 9px; color: #7BAFD4; letter-spacing: 2px; margin-top: 4px; font-weight: 600; }
+    .aprov-bar { height: 6px; border-radius: 4px; overflow: hidden; margin-top: 14px; display: flex; background: #F5F9FF; }
+
+    /* empty stats */
+    #stats-empty { text-align: center; padding: 60px 20px; color: #B8C8D8; }
+    #stats-empty .big-icon { font-size: 48px; margin-bottom: 12px; }
+    #stats-empty .title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: #7BAFD4; }
+    #stats-empty .sub { font-size: 13px; font-weight: 300; margin-top: 6px; }
+
+    /* ── SPLASH ── */
+    #splash { position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#00244A 0%,#0057A8 60%,#1A74C8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease; }
+    #splash.hide { opacity:0;pointer-events:none; }
+    .splash-logo { width:90px;height:90px;border-radius:24px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:46px;margin-bottom:28px;animation:splashPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; }
+    .splash-title { font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:6px;color:#fff;line-height:1;animation:splashFade 0.5s ease 0.5s both; }
+    .splash-sub { font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:6px;color:rgba(255,255,255,0.5);font-weight:300;margin-top:8px;animation:splashFade 0.5s ease 0.7s both; }
+    .splash-bar { width:120px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;margin-top:48px;overflow:hidden;animation:splashFade 0.5s ease 0.9s both; }
+    .splash-bar-fill { height:100%;background:#fff;border-radius:2px;animation:splashLoad 1.8s ease 1s both; }
+    @keyframes splashPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes splashFade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes splashLoad { from{width:0%} to{width:100%} }
   </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
 <div id="splash">
   <div class="splash-logo">👟</div>
   <div class="splash-title">BRUNO MELO WIN</div>
@@ -134,359 +272,457 @@
   <div class="splash-bar"><div class="splash-bar-fill"></div></div>
 </div>
 
-<div class="header">
-  <div class="header-inner">
-    <div class="header-top">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="logo-box">👟</div>
+<!-- ── HEADER ── -->
+<div id="header">
+  <div id="header-inner">
+    <div id="header-top">
+      <div id="logo-wrap">
+        <div id="logo-icon">👟</div>
         <div>
-          <div class="logo-title">BRUNO MELO WIN</div>
-          <div class="logo-sub">QUINTA-FEIRA</div>
+          <div id="app-name">BRUNO MELO WIN</div>
+          <div id="app-sub">QUINTA-FEIRA</div>
         </div>
       </div>
-      <div class="jg-badge">
-        <span class="jg-num" id="total-jgs">0</span>
-        <span style="margin-left:4px;opacity:0.6;font-size:12px">JGs</span>
-      </div>
+      <div id="jg-badge"><span id="jg-count">0</span> JGs</div>
     </div>
-    <div class="nav">
-      <button class="nav-btn active" onclick="navTo('historico')">HISTÓRICO</button>
-      <button class="nav-btn" onclick="navTo('nova')">+ NOVA</button>
-      <button class="nav-btn" onclick="navTo('stats')">STATS</button>
+    <div id="nav">
+      <button class="nav-btn active" data-view="historico">HISTÓRICO</button>
+      <button class="nav-btn" data-view="nova">+ NOVA</button>
+      <button class="nav-btn" data-view="stats">STATS</button>
     </div>
   </div>
 </div>
 
-<div class="content">
+<!-- ── MAIN ── -->
+<div id="main">
 
-  <!-- HISTÓRICO -->
-  <div id="page-historico" class="page active">
-    <div class="mini-stats">
+  <!-- ── HISTÓRICO ── -->
+  <div id="view-historico" class="view active">
+
+    <!-- Mini stats row -->
+    <div id="mini-stats">
       <div class="mini-card">
-        <div class="mini-icon">⚽</div>
-        <div class="mini-val" style="color:#0057A8" id="total-gols">0</div>
-        <div class="mini-label">GOLS</div>
+        <div class="icon">⚽</div>
+        <div class="val" id="ms-gols" style="color:#0057A8">0</div>
+        <div class="lbl">GOLS</div>
       </div>
       <div class="mini-card">
-        <div class="mini-icon">🅰️</div>
-        <div class="mini-val" style="color:#1A74C8" id="total-assist">0</div>
-        <div class="mini-label">ASSISTS</div>
+        <div class="icon">🅰️</div>
+        <div class="val" id="ms-assist" style="color:#1A74C8">0</div>
+        <div class="lbl">ASSISTS</div>
       </div>
       <div class="mini-card">
-        <div class="mini-icon">📈</div>
-        <div class="mini-val" style="color:#4FA3E8" id="media-gols">—</div>
-        <div class="mini-label">MÉDIA/JG</div>
+        <div class="icon">📈</div>
+        <div class="val" id="ms-media" style="color:#4FA3E8">—</div>
+        <div class="lbl">MÉDIA/JG</div>
       </div>
     </div>
+
+    <!-- Empty state -->
+    <div id="empty-state">
+      <div class="big-icon">⚽</div>
+      <div class="title">NENHUMA PARTIDA</div>
+      <div class="sub">Registre sua primeira pelada!</div>
+      <button id="empty-cta">+ NOVA PARTIDA</button>
+    </div>
+
+    <!-- Lista de partidas -->
     <div id="lista-partidas"></div>
   </div>
 
-  <!-- NOVA PARTIDA -->
-  <div id="page-nova" class="page">
-    <div class="form-card">
-      <div class="form-title">⚽ REGISTRAR PARTIDA</div>
-      <div class="form-body">
-        <div>
-          <label class="form-label">DATA</label>
-          <input type="date" id="f-data" class="form-input">
-        </div>
-        <div class="form-grid2">
-          <div>
-            <label class="form-label">GOLS ⚽</label>
-            <input type="number" min="0" id="f-gols" placeholder="0" class="form-input form-num">
-          </div>
-          <div>
-            <label class="form-label" style="color:#1A74C8">ASSISTS 🅰️</label>
-            <input type="number" min="0" id="f-assist" placeholder="0" class="form-input form-num assist">
-          </div>
-        </div>
-        <div>
-          <label class="form-label">RESULTADO</label>
-          <select id="f-resultado" class="form-input">
-            <option value="">— Selecione —</option>
-            <option value="Vitória">Vitória</option>
-            <option value="Empate">Empate</option>
-            <option value="Derrota">Derrota</option>
-          </select>
-        </div>
-        <div>
-          <label class="form-label">NOTAS / OBSERVAÇÕES</label>
-          <textarea id="f-notas" placeholder="Como foi a pelada? Jogadas incríveis, quem se destacou..." class="form-input" rows="3" style="resize:vertical;line-height:1.6"></textarea>
-        </div>
-        <div>
-          <label class="form-label">VÍDEO DA PELADA 📹</label>
-          <div class="upload-area" id="upload-area" onclick="document.getElementById('f-video').click()">
-            <div class="upload-icon" id="upload-icon">📁</div>
-            <div class="upload-text" id="upload-text">Clique para selecionar o vídeo</div>
-            <div class="upload-sub" id="upload-sub">MP4, MOV, AVI...</div>
-          </div>
-          <input type="file" id="f-video" accept="video/*" style="display:none" onchange="handleVideo(this)">
-        </div>
-        <button class="btn-salvar" id="btn-salvar" onclick="salvarPartida()">SALVAR PARTIDA</button>
+  <!-- ── NOVA PARTIDA ── -->
+  <div id="view-nova" class="view">
+    <div id="form-card">
+      <div id="form-title">👟 REGISTRAR PARTIDA</div>
+
+      <!-- Data -->
+      <div class="form-group">
+        <label class="form-label">DATA</label>
+        <input type="date" id="f-data" class="field" />
       </div>
+
+      <!-- Gols + Assists -->
+      <div class="two-col">
+        <div class="form-group">
+          <label class="form-label">GOLS ⚽</label>
+          <input type="number" id="f-gols" class="field field-big" min="0" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label green">ASSISTS 🅰️</label>
+          <input type="number" id="f-assist" class="field field-big assist" min="0" placeholder="0" />
+        </div>
+      </div>
+
+      <!-- Partidas ganhas na quinta -->
+      <div class="form-group">
+        <label class="form-label">PARTIDAS GANHAS 🏆</label>
+        <input type="number" id="f-ganhas" class="field" min="0" placeholder="Quantas peladas você ganhou hoje?" />
+      </div>
+
+      <!-- Resultado -->
+      <div class="form-group">
+        <label class="form-label">RESULTADO</label>
+        <select id="f-resultado" class="field">
+          <option value="">— Selecione —</option>
+          <option value="Vitória">Vitória</option>
+          <option value="Empate">Empate</option>
+          <option value="Derrota">Derrota</option>
+        </select>
+      </div>
+
+      <!-- Upload vídeo -->
+      <div class="form-group">
+        <label class="form-label">VÍDEO DA PELADA 📹</label>
+        <div id="video-drop">
+          <div id="drop-idle">
+            <div class="drop-icon">📁</div>
+            <div class="drop-text">Clique para selecionar o vídeo</div>
+            <div class="drop-sub">MP4, MOV, AVI...</div>
+          </div>
+          <div id="drop-done" style="display:none">
+            <div class="drop-icon">✅</div>
+            <div class="drop-name" id="drop-name"></div>
+            <div class="drop-change">Clique para trocar</div>
+          </div>
+        </div>
+        <input type="file" id="f-video" accept="video/*" style="display:none" />
+      </div>
+
+      <button id="btn-salvar">SALVAR PARTIDA</button>
     </div>
   </div>
 
-  <!-- STATS -->
-  <div id="page-stats" class="page">
-    <div id="stats-vazio" class="empty-state" style="display:none">
-      <div style="font-size:48px;margin-bottom:12px">📊</div>
-      <div class="empty-title">REGISTRE MAIS PARTIDAS</div>
-      <div class="empty-sub">Os gráficos aparecem com 2+ partidas.</div>
+  <!-- ── STATS ── -->
+  <div id="view-stats" class="view">
+    <div id="stats-empty" style="display:none">
+      <div class="big-icon">📊</div>
+      <div class="title">REGISTRE MAIS PARTIDAS</div>
+      <div class="sub">Os gráficos aparecem com 2+ partidas.</div>
     </div>
+
     <div id="stats-content">
-      <div class="stats-grid2" id="stats-nums"></div>
-      <div class="chart-card">
-        <div class="chart-title">GOLS E ASSISTS POR PARTIDA</div>
-        <canvas id="chart-gols" height="200"></canvas>
+      <div id="stats-grid">
+        <div class="stat-big"><div class="val" id="st-gols" style="color:#0057A8">0</div><div class="lbl">TOTAL DE GOLS</div></div>
+        <div class="stat-big"><div class="val" id="st-assist" style="color:#1A74C8">0</div><div class="lbl">TOTAL ASSISTS</div></div>
+        <div class="stat-big"><div class="val" id="st-media" style="color:#4FA3E8">—</div><div class="lbl">MÉDIA GOLS/JG</div></div>
+        <div class="stat-big"><div class="val" id="st-jogos" style="color:#00244A">0</div><div class="lbl">PARTIDAS</div></div>
       </div>
+
+      <div class="chart-card" style="margin-top:0">
+        <div class="chart-title">GOLS E ASSISTS POR PARTIDA</div>
+        <canvas id="chart-partidas" height="200"></canvas>
+      </div>
+
       <div class="chart-card">
         <div class="chart-title">GOLS ACUMULADOS</div>
         <canvas id="chart-acum" height="180"></canvas>
       </div>
-      <div class="aprov-card" id="aprov-card"></div>
+
+      <div class="chart-card" id="aprov-card">
+        <div class="chart-title">APROVEITAMENTO</div>
+        <div class="aprov-row">
+          <div class="aprov-item" style="background:rgba(34,197,94,0.1);border:1.5px solid rgba(34,197,94,0.3)">
+            <div class="val" id="aprov-v" style="color:#22c55e">0</div>
+            <div class="lbl">VITÓRIAS</div>
+          </div>
+          <div class="aprov-item" style="background:rgba(234,179,8,0.1);border:1.5px solid rgba(234,179,8,0.3)">
+            <div class="val" id="aprov-e" style="color:#eab308">0</div>
+            <div class="lbl">EMPATES</div>
+          </div>
+          <div class="aprov-item" style="background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3)">
+            <div class="val" id="aprov-d" style="color:#ef4444">0</div>
+            <div class="lbl">DERROTAS</div>
+          </div>
+        </div>
+        <div class="aprov-bar" id="aprov-bar"></div>
+      </div>
     </div>
   </div>
 
 </div>
 
+<!-- ── TOAST ── -->
+<div id="toast">✅ PARTIDA SALVA!</div>
+
 <script>
-const STORAGE_KEY = 'pelada_partidas';
-let partidas = [];
-let videoData = null;
-let videoName = '';
-let chartGols = null;
-let chartAcum = null;
+  const STORAGE_KEY = 'bmw_partidas';
+  let partidas = [];
+  let videoData = null;
+  let videoName = '';
+  let chartPartidas = null;
+  let chartAcum = null;
+  let expandedId = null;
 
-function getPartidas() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-}
-function savePartidas(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-function fmtDate(str) {
-  const [y,m,d] = str.split('-');
-  return `${d}/${m}/${y}`;
-}
-function resultadoBadge(r) {
-  if (!r) return '';
-  if (r === 'Vitória') return '<span class="badge badge-green">Vitória</span>';
-  if (r === 'Empate') return '<span class="badge badge-yellow">Empate</span>';
-  return '<span class="badge badge-red">Derrota</span>';
-}
-
-function navTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  const btns = document.querySelectorAll('.nav-btn');
-  const map = { historico: 0, nova: 1, stats: 2 };
-  btns[map[page]].classList.add('active');
-  if (page === 'historico') renderHistorico();
-  if (page === 'stats') renderStats();
-}
-
-function renderHistorico() {
-  partidas = getPartidas();
-  const total = partidas.length;
-  const totalGols = partidas.reduce((s,p) => s + Number(p.gols||0), 0);
-  const totalAssist = partidas.reduce((s,p) => s + Number(p.assist||0), 0);
-  const media = total ? (totalGols/total).toFixed(1) : '—';
-
-  document.getElementById('total-jgs').textContent = total;
-  document.getElementById('total-gols').textContent = totalGols;
-  document.getElementById('total-assist').textContent = totalAssist;
-  document.getElementById('media-gols').textContent = media;
-
-  const lista = document.getElementById('lista-partidas');
-  if (total === 0) {
-    lista.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">⚽</div>
-      <div class="empty-title">NENHUMA PARTIDA</div>
-      <div class="empty-sub">Registre sua primeira pelada!</div>
-      <button class="btn-nova-empty" onclick="navTo('nova')">+ NOVA PARTIDA</button>
-    </div>`;
-    return;
+  /* ── UTILS ── */
+  function formatDate(str) {
+    const [y, m, d] = str.split('-');
+    return `${d}/${m}/${y}`;
   }
-  lista.innerHTML = `<div class="partidas-list">${partidas.map(p => `
-    <div class="partida-card" id="card-${p.id}">
-      <div class="partida-row" onclick="toggleExpand(${p.id})">
-        <div class="date-block">
-          <div class="date-day">${fmtDate(p.data).split('/')[0]}</div>
-          <div class="date-rest">${fmtDate(p.data).slice(3)}</div>
-        </div>
-        <div class="partida-info">
-          <div class="partida-badges">
-            ${resultadoBadge(p.resultado)}
-            ${p.video ? '<span class="badge badge-blue">📹 Vídeo</span>' : ''}
-          </div>
-          <div class="partida-nums">
-            <span>⚽ <b class="partida-num-val">${p.gols||0}</b></span>
-            <span>🅰️ <b class="partida-num-val assist">${p.assist||0}</b></span>
-          </div>
-        </div>
-        <div class="partida-actions">
-          <button class="del-btn" onclick="deletar(${p.id},event)">DEL</button>
-          <span class="expand-arrow" id="arrow-${p.id}">▼</span>
-        </div>
-      </div>
-      <div class="partida-expand" id="expand-${p.id}">
-        ${p.notas ? `<p class="expand-nota">📝 ${p.notas}</p>` : ''}
-        ${p.video ? `<div class="expand-video-label">📹 ${p.videoName||'vídeo'}</div><video src="${p.video}" controls class="expand-video"></video>` : ''}
-        ${!p.notas && !p.video ? '<p class="expand-empty">Sem notas ou vídeo registrado.</p>' : ''}
-      </div>
-    </div>`).join('')}</div>`;
-}
+  function today() {
+    return new Date().toISOString().split('T')[0];
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(partidas)); } catch(e) {}
+  }
+  function load() {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) partidas = JSON.parse(s);
+    } catch(e) {}
+  }
 
-function toggleExpand(id) {
-  const el = document.getElementById('expand-' + id);
-  const arrow = document.getElementById('arrow-' + id);
-  const open = el.classList.toggle('open');
-  arrow.textContent = open ? '▲' : '▼';
-}
+  /* ── TOAST ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
 
-function deletar(id, e) {
-  e.stopPropagation();
-  partidas = getPartidas().filter(p => p.id !== id);
-  savePartidas(partidas);
+  /* ── NAV ── */
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + btn.dataset.view);
+      target.classList.add('active');
+      if (btn.dataset.view === 'stats') renderStats();
+    });
+  });
+
+  document.getElementById('empty-cta').addEventListener('click', () => {
+    document.querySelector('[data-view="nova"]').click();
+  });
+
+  /* ── VIDEO UPLOAD ── */
+  const videoDrop = document.getElementById('video-drop');
+  const videoInput = document.getElementById('f-video');
+
+  videoDrop.addEventListener('click', () => videoInput.click());
+  videoInput.addEventListener('change', () => {
+    const file = videoInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      videoData = e.target.result;
+      videoName = file.name;
+      document.getElementById('drop-idle').style.display = 'none';
+      document.getElementById('drop-done').style.display = 'block';
+      document.getElementById('drop-name').textContent = file.name;
+      videoDrop.classList.add('has-video');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ── SAVE PARTIDA ── */
+  document.getElementById('btn-salvar').addEventListener('click', () => {
+    const data = document.getElementById('f-data').value;
+    if (!data) { alert('Selecione uma data!'); return; }
+
+    const partida = {
+      id: Date.now(),
+      data,
+      gols: parseInt(document.getElementById('f-gols').value) || 0,
+      assistencias: parseInt(document.getElementById('f-assist').value) || 0,
+      ganhas: parseInt(document.getElementById('f-ganhas').value) || 0,
+      resultado: document.getElementById('f-resultado').value,
+      video: videoData,
+      videoName: videoName,
+    };
+
+    partidas.unshift(partida);
+    save();
+
+    // reset form
+    document.getElementById('f-data').value = today();
+    document.getElementById('f-gols').value = '';
+    document.getElementById('f-assist').value = '';
+    document.getElementById('f-ganhas').value = '';
+    document.getElementById('f-resultado').value = '';
+    videoData = null; videoName = '';
+    videoInput.value = '';
+    document.getElementById('drop-idle').style.display = 'block';
+    document.getElementById('drop-done').style.display = 'none';
+    videoDrop.classList.remove('has-video');
+
+    // go to historico + refresh
+    document.querySelector('[data-view="historico"]').click();
+    renderHistorico();
+
+    showToast('✅  PARTIDA SALVA!');
+  });
+
+  /* ── RENDER HISTÓRICO ── */
+  function renderHistorico() {
+    const totalGols = partidas.reduce((s, p) => s + p.gols, 0);
+    const totalAssist = partidas.reduce((s, p) => s + p.assistencias, 0);
+    const media = partidas.length ? (totalGols / partidas.length).toFixed(1) : '—';
+
+    document.getElementById('ms-gols').textContent = totalGols;
+    document.getElementById('ms-assist').textContent = totalAssist;
+    document.getElementById('ms-media').textContent = media;
+    document.getElementById('jg-count').textContent = partidas.length;
+
+    document.getElementById('empty-state').style.display = partidas.length ? 'none' : 'block';
+
+    const lista = document.getElementById('lista-partidas');
+    lista.innerHTML = '';
+
+    partidas.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'partida-card';
+      card.dataset.id = p.id;
+
+      const [y, m, d] = p.data.split('-');
+      const dayStr = d;
+      const restStr = `${m}/${y}`;
+
+      let badgeHTML = '';
+      if (p.resultado === 'Vitória') badgeHTML += '<span class="badge badge-green">Vitória</span>';
+      else if (p.resultado === 'Empate') badgeHTML += '<span class="badge badge-yellow">Empate</span>';
+      else if (p.resultado === 'Derrota') badgeHTML += '<span class="badge badge-red">Derrota</span>';
+      if (p.video) badgeHTML += '<span class="badge badge-blue">📹 Vídeo</span>';
+      if (p.ganhas > 0) badgeHTML += `<span class="badge badge-blue">🏆 ${p.ganhas} ganhas</span>`;
+
+      card.innerHTML = `
+        <div class="partida-row">
+          <div class="date-block">
+            <div class="day">${dayStr}</div>
+            <div class="rest">${restStr}</div>
+          </div>
+          <div class="partida-info">
+            <div class="badges-row">${badgeHTML}</div>
+            <div class="stats-row">
+              <span>⚽ <b style="color:#0057A8">${p.gols}</b></span>
+              <span>🅰️ <b style="color:#1A74C8">${p.assistencias}</b></span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="del-btn">DEL</button>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+        <div class="partida-expanded" id="exp-${p.id}">
+          ${p.video
+            ? `<div class="expanded-video-label">📹 ${p.videoName}</div>
+               <video class="expanded-video" src="${p.video}" controls></video>`
+            : `<div class="expanded-empty">Sem vídeo registrado.</div>`
+          }
+        </div>
+      `;
+
+      // toggle expand
+      card.querySelector('.partida-row').addEventListener('click', () => {
+        const exp = document.getElementById('exp-' + p.id);
+        const chev = card.querySelector('.chevron');
+        const isOpen = exp.classList.contains('open');
+        exp.classList.toggle('open', !isOpen);
+        chev.textContent = isOpen ? '▼' : '▲';
+      });
+
+      // delete
+      card.querySelector('.del-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        partidas = partidas.filter(x => x.id !== p.id);
+        save();
+        renderHistorico();
+      });
+
+      lista.appendChild(card);
+    });
+  }
+
+  /* ── RENDER STATS ── */
+  function renderStats() {
+    const totalGols = partidas.reduce((s, p) => s + p.gols, 0);
+    const totalAssist = partidas.reduce((s, p) => s + p.assistencias, 0);
+    const media = partidas.length ? (totalGols / partidas.length).toFixed(1) : '—';
+
+    document.getElementById('st-gols').textContent = totalGols;
+    document.getElementById('st-assist').textContent = totalAssist;
+    document.getElementById('st-media').textContent = media;
+    document.getElementById('st-jogos').textContent = partidas.length;
+
+    const showEmpty = partidas.length < 2;
+    document.getElementById('stats-empty').style.display = showEmpty ? 'block' : 'none';
+    document.getElementById('stats-content').style.display = showEmpty ? 'none' : 'flex';
+    document.getElementById('stats-content').style.flexDirection = 'column';
+    document.getElementById('stats-content').style.gap = '16px';
+
+    if (showEmpty) return;
+
+    const sorted = [...partidas].sort((a, b) => a.data.localeCompare(b.data));
+    const labels = sorted.map(p => formatDate(p.data));
+    const golsData = sorted.map(p => p.gols);
+    const assistData = sorted.map(p => p.assistencias);
+
+    // acum
+    let acc = 0;
+    const acumData = sorted.map(p => { acc += p.gols; return acc; });
+
+    // Chart gols/assists
+    if (chartPartidas) chartPartidas.destroy();
+    const ctx1 = document.getElementById('chart-partidas').getContext('2d');
+    chartPartidas = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Gols', data: golsData, borderColor: '#0057A8', backgroundColor: 'rgba(0,87,168,0.08)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#0057A8', tension: 0.3 },
+          { label: 'Assistências', data: assistData, borderColor: '#4FA3E8', backgroundColor: 'rgba(79,163,232,0.08)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#4FA3E8', tension: 0.3 },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7BAFD4', font: { family: 'Oswald', size: 12 } } }, tooltip: { backgroundColor: '#00244A', titleColor: '#4FA3E8', bodyColor: '#fff', borderColor: '#1A74C8', borderWidth: 1 } },
+        scales: { x: { ticks: { color: '#7BAFD4', font: { family: 'Oswald' } }, grid: { color: '#DBEAFE' } }, y: { ticks: { color: '#7BAFD4', font: { family: 'Oswald' }, stepSize: 1 }, grid: { color: '#DBEAFE' } } }
+      }
+    });
+
+    // Chart acumulado
+    if (chartAcum) chartAcum.destroy();
+    const ctx2 = document.getElementById('chart-acum').getContext('2d');
+    chartAcum = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{ label: 'Gols acumulados', data: acumData, borderColor: '#00244A', backgroundColor: 'rgba(0,36,74,0.08)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#00244A', tension: 0.3 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#7BAFD4', font: { family: 'Oswald', size: 12 } } }, tooltip: { backgroundColor: '#00244A', titleColor: '#4FA3E8', bodyColor: '#fff', borderColor: '#1A74C8', borderWidth: 1 } },
+        scales: { x: { ticks: { color: '#7BAFD4', font: { family: 'Oswald' } }, grid: { color: '#DBEAFE' } }, y: { ticks: { color: '#7BAFD4', font: { family: 'Oswald' }, stepSize: 1 }, grid: { color: '#DBEAFE' } } }
+      }
+    });
+
+    // Aproveitamento
+    const v = partidas.filter(p => p.resultado === 'Vitória').length;
+    const e = partidas.filter(p => p.resultado === 'Empate').length;
+    const d = partidas.filter(p => p.resultado === 'Derrota').length;
+    document.getElementById('aprov-v').textContent = v;
+    document.getElementById('aprov-e').textContent = e;
+    document.getElementById('aprov-d').textContent = d;
+
+    const bar = document.getElementById('aprov-bar');
+    bar.innerHTML = '';
+    if (v) { const s = document.createElement('div'); s.style.cssText = `flex:${v};background:#22c55e`; bar.appendChild(s); }
+    if (e) { const s = document.createElement('div'); s.style.cssText = `flex:${e};background:#eab308`; bar.appendChild(s); }
+    if (d) { const s = document.createElement('div'); s.style.cssText = `flex:${d};background:#ef4444`; bar.appendChild(s); }
+    document.getElementById('aprov-card').style.display = (v + e + d) ? 'block' : 'none';
+  }
+
+  /* ── INIT ── */
+  document.getElementById('f-data').value = today();
+  load();
   renderHistorico();
-}
 
-function handleVideo(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    videoData = ev.target.result;
-    videoName = file.name;
-    document.getElementById('upload-area').classList.add('has-video');
-    document.getElementById('upload-icon').textContent = '✅';
-    document.getElementById('upload-text').textContent = file.name;
-    document.getElementById('upload-sub').textContent = 'Clique para trocar';
-  };
-  reader.readAsDataURL(file);
-}
-
-function salvarPartida() {
-  const data = document.getElementById('f-data').value;
-  if (!data) { alert('Informe a data!'); return; }
-  const nova = {
-    id: Date.now(),
-    data,
-    gols: document.getElementById('f-gols').value || '0',
-    assist: document.getElementById('f-assist').value || '0',
-    resultado: document.getElementById('f-resultado').value,
-    notas: document.getElementById('f-notas').value,
-    video: videoData,
-    videoName: videoName,
-  };
-  partidas = getPartidas();
-  partidas.unshift(nova);
-  savePartidas(partidas);
-
-  // Reset form
-  document.getElementById('f-gols').value = '';
-  document.getElementById('f-assist').value = '';
-  document.getElementById('f-resultado').value = '';
-  document.getElementById('f-notas').value = '';
-  document.getElementById('f-video').value = '';
-  videoData = null; videoName = '';
-  document.getElementById('upload-area').classList.remove('has-video');
-  document.getElementById('upload-icon').textContent = '📁';
-  document.getElementById('upload-text').textContent = 'Clique para selecionar o vídeo';
-  document.getElementById('upload-sub').textContent = 'MP4, MOV, AVI...';
-
-  const btn = document.getElementById('btn-salvar');
-  btn.textContent = '✅ SALVO!';
-  setTimeout(() => { btn.textContent = 'SALVAR PARTIDA'; }, 2000);
-  navTo('historico');
-}
-
-function renderStats() {
-  partidas = getPartidas();
-  const sorted = [...partidas].sort((a,b) => a.data.localeCompare(b.data));
-
-  if (partidas.length < 2) {
-    document.getElementById('stats-vazio').style.display = 'block';
-    document.getElementById('stats-content').style.display = 'none';
-    return;
-  }
-  document.getElementById('stats-vazio').style.display = 'none';
-  document.getElementById('stats-content').style.display = 'block';
-
-  const totalGols = partidas.reduce((s,p) => s+Number(p.gols||0),0);
-  const totalAssist = partidas.reduce((s,p) => s+Number(p.assist||0),0);
-  const media = partidas.length ? (totalGols/partidas.length).toFixed(1) : '—';
-
-  document.getElementById('stats-nums').innerHTML = [
-    {label:'TOTAL DE GOLS', value:totalGols, color:'#0057A8'},
-    {label:'TOTAL ASSISTS', value:totalAssist, color:'#1A74C8'},
-    {label:'MÉDIA GOLS/JG', value:media, color:'#4FA3E8'},
-    {label:'PARTIDAS', value:partidas.length, color:'#00244A'},
-  ].map(s => `<div class="stat-big">
-    <div class="stat-big-val" style="color:${s.color}">${s.value}</div>
-    <div class="stat-big-label">${s.label}</div>
-  </div>`).join('');
-
-  const labels = sorted.map(p => fmtDate(p.data));
-  const gols = sorted.map(p => Number(p.gols||0));
-  const assists = sorted.map(p => Number(p.assist||0));
-  let acum = 0;
-  const golsAcum = sorted.map(p => { acum += Number(p.gols||0); return acum; });
-
-  if (chartGols) chartGols.destroy();
-  chartGols = new Chart(document.getElementById('chart-gols'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label:'Gols', data:gols, borderColor:'#0057A8', backgroundColor:'rgba(0,87,168,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 },
-        { label:'Assists', data:assists, borderColor:'#4FA3E8', backgroundColor:'rgba(79,163,232,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 },
-      ]
-    },
-    options: { plugins:{legend:{labels:{color:'#7BAFD4',font:{family:'Oswald'}}}}, scales:{ x:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}}}, y:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}},beginAtZero:true} } }
-  });
-
-  if (chartAcum) chartAcum.destroy();
-  chartAcum = new Chart(document.getElementById('chart-acum'), {
-    type: 'line',
-    data: { labels, datasets: [{ label:'Gols acumulados', data:golsAcum, borderColor:'#00244A', backgroundColor:'rgba(0,36,74,0.08)', borderWidth:2.5, pointRadius:4, tension:0.3 }] },
-    options: { plugins:{legend:{labels:{color:'#7BAFD4',font:{family:'Oswald'}}}}, scales:{ x:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}}}, y:{ticks:{color:'#7BAFD4',font:{family:'Oswald',size:10}},beginAtZero:true} } }
-  });
-
-  const v = partidas.filter(p => p.resultado==='Vitória').length;
-  const e = partidas.filter(p => p.resultado==='Empate').length;
-  const d = partidas.filter(p => p.resultado==='Derrota').length;
-  if (v+e+d > 0) {
-    document.getElementById('aprov-card').innerHTML = `
-      <div class="chart-title">APROVEITAMENTO</div>
-      <div class="aprov-grid">
-        ${[{l:'VITÓRIAS',c:v,cor:'#22c55e'},{l:'EMPATES',c:e,cor:'#eab308'},{l:'DERROTAS',c:d,cor:'#ef4444'}].map(r=>`
-          <div class="aprov-item" style="background:${r.cor}10;border:1.5px solid ${r.cor}30">
-            <div class="aprov-val" style="color:${r.cor}">${r.c}</div>
-            <div class="aprov-label">${r.l}</div>
-          </div>`).join('')}
-      </div>
-      <div class="aprov-bar">
-        ${v>0?`<div style="flex:${v};background:#22c55e"></div>`:''}
-        ${e>0?`<div style="flex:${e};background:#eab308"></div>`:''}
-        ${d>0?`<div style="flex:${d};background:#ef4444"></div>`:''}
-      </div>`;
-  } else {
-    document.getElementById('aprov-card').innerHTML = '';
-  }
-}
-
-// Init
-document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
-renderHistorico();
-
-// Splash
-setTimeout(() => {
-  const splash = document.getElementById('splash');
-  splash.classList.add('hide');
-  setTimeout(() => splash.style.display = 'none', 700);
-}, 2500);
+  // Splash
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('hide');
+    setTimeout(() => splash.style.display = 'none', 700);
+  }, 2500);
 </script>
 </body>
 </html>
